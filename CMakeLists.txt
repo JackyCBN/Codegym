@@ -2,31 +2,31 @@ cmake_minimum_required (VERSION 3.8)
 
 project("Codegym" VERSION 1.0)
 
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "/usr/local/share/OpenCV")
-
-# Find includes in corresponding build directories
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-# Instruct CMake to run moc automatically when needed
-set(CMAKE_AUTOMOC ON)
-# Create code from a list of Qt designer ui files
-set(CMAKE_AUTOUIC ON)
-
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+# where to look first for cmake modules, before ${CMAKE_ROOT}/Modules/ is checked
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
-
-# Find the QtWidgets library
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
-
-
-# Find Qt5
-
-find_package(Qt5Core 5.11.1 REQUIRED)
-
-if(Qt5Core_FOUND)
-	MESSAGE(STATUS "Found Qt ${Qt5Core_VERSION_STRING}")
-else()
-	MESSAGE(FATAL_ERROR "No Qt5 found")
+# Default build type is RelWithDebInfo for release versions and Debug for developement versions
+if(NOT CMAKE_BUILD_TYPE)
+        set(CMAKE_BUILD_TYPE Debug)
 endif()
 
-add_executable(Codegym ${PROJECT_SOURCE_DIR}/src/test.cpp)
+# macros
+include(CodegymMacros)
+
+# Cxx compiler config
+include(CxxCompiler)
+
+# This file contains all the needed initialization macros
+include(CodegymDefaults)
+
+# Find Qt modules
+include(ConfigQt5)
+
+add_executable(Codegym WIN32 ${PROJECT_SOURCE_DIR}/src/test.cpp)
+
+# Use the Widgets module from Qt 5.
+target_link_libraries(Codegym Qt5::Widgets)
+# Always keep it last: CPack definitions file
+include(CodegymDist)
