@@ -36,12 +36,12 @@ MACRO(COPY_IF_DIFFERENT FROM_DIR TO_DIR FILES TARGETS TAGS)
 ENDMACRO(COPY_IF_DIFFERENT FROM_DIR TO_DIR FILES TARGETS TAGS)
 
 
-macro(qt5_copy_dll APP DLL)
+macro(copy_dll APP LIBRARY DLL)
     # find the release *.dll file
-    get_target_property(Qt5_${DLL}Location Qt5::${DLL} LOCATION)
+    get_target_property(${LIBRARY}_${DLL}Location ${LIBRARY}::${DLL} LOCATION)
     # find the debug *d.dll file
-    get_target_property(Qt5_${DLL}LocationDebug Qt5::${DLL} IMPORTED_LOCATION_DEBUG)
+    get_target_property(${LIBRARY}_${DLL}LocationDebug ${LIBRARY}::${DLL} IMPORTED_LOCATION_DEBUG)
 
     add_custom_command(TARGET ${APP} POST_BUILD
-       COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:Debug>:${Qt5_${DLL}LocationDebug}> $<$<NOT:$<CONFIG:Debug>>:${Qt5_${DLL}Location}> $<TARGET_FILE_DIR:${APP}>)
+       COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:Debug>:${${LIBRARY}_${DLL}LocationDebug}> $<$<NOT:$<CONFIG:Debug>>:${${LIBRARY}_${DLL}Location}> $<TARGET_FILE_DIR:${APP}>)
 endmacro()

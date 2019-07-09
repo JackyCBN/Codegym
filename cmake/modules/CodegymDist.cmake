@@ -1,3 +1,4 @@
-qt5_copy_dll(Codegym Core)
-qt5_copy_dll(Codegym Gui)
-qt5_copy_dll(Codegym Widgets)
+copy_dll(Codegym Qt5 Core)
+copy_dll(Codegym Qt5 Gui)
+copy_dll(Codegym Qt5 Widgets)
+#copy_dll(Codegym RTTR Core)
