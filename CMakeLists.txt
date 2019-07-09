@@ -24,6 +24,9 @@ include(CodegymDefaults)
 # Find Qt modules
 include(ConfigQt5)
 
+# cmake helper functions
+include(utility)
+
 #include_directories(extern/rttr)
 #set(RTTR_DIR ${CMAKE_SOURCE_DIR}/extern/rttr/_builds/install)
 #list(APPEND CMAKE_PREFIX_PATH ${RTTR_DIR})
@@ -32,7 +35,7 @@ include(ConfigQt5)
 find_package(RTTR 0.9.7 QUIET)
 if(NOT RTTR_FOUND)
   message(STATUS "RTTR not found on system, will download source and build it")
-  include(rttr.CMakeLists.txt)
+  include(rttr)
 endif()
 
 

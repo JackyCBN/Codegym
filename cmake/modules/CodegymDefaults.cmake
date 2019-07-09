@@ -1,6 +1,8 @@
 # Enable testing using CTest
 #enable_testing()
 
+set(CMAKE_CONFIGURATION_TYPES "Debug;RelWithDebInfo;Release")
+
 # Always include srcdir and builddir in include path
 # This saves typing ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} in about every subdir
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
