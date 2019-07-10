@@ -36,7 +36,7 @@ MACRO(COPY_IF_DIFFERENT FROM_DIR TO_DIR FILES TARGETS TAGS)
 ENDMACRO(COPY_IF_DIFFERENT FROM_DIR TO_DIR FILES TARGETS TAGS)
 
 
-macro(copy_dll APP LIBRARY DLL)
+macro(copy_shared_lib APP LIBRARY DLL)
     # find the release *.dll file
     get_target_property(${LIBRARY}_${DLL}Location ${LIBRARY}::${DLL} LOCATION)
     # find the debug *d.dll file

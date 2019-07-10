@@ -1,5 +1,3 @@
-
-
 include(ExternalProject)
 
 set(configuration ${CMAKE_BUILD_TYPE})
@@ -11,20 +9,22 @@ ExternalProject_Add(rttr_project
 )
 
 ExternalProject_Get_Property(rttr_project install_dir)
-file(MAKE_DIRECTORY "${install_dir}/include")
-file(MAKE_DIRECTORY "${install_dir}/lib")
-# fails on Win: execute_process(COMMAND touch "${install_dir}/lib/librttr_core.a")
-# CMake >=3.12: file(TOUCH "${install_dir}/lib/librttr_core.a")
-#if(NOT EXISTS "${install_dir}/lib/librttr_core.a")
-    # file(WRITE "${install_dir}/lib/librttr_core.a" "dummy file to be replaced by build")
-#endif()
+set(rttr_install_dir ${install_dir})
+file(MAKE_DIRECTORY "${rttr_install_dir}/include")
+file(MAKE_DIRECTORY "${rttr_install_dir}/lib")
 
-add_library(RTTR::Core STATIC IMPORTED)
+set(rttr_debug_output_lib_path ${rttr_install_dir}/lib/rttr_core_d${CMAKE_STATIC_LIBRARY_SUFFIX})
+set(rttr_release_output_lib_path ${rttr_install_dir}/lib/rttr_core${CMAKE_STATIC_LIBRARY_SUFFIX})
+# fails on Win: execute_process(COMMAND touch "${rttr_install_dir}/lib/librttr_core.a")
+# CMake >=3.12: file(TOUCH "${rttr_install_dir}/lib/librttr_core.a")
+if(NOT EXISTS "${rttr_debug_output_lib_path}")
+     file(WRITE "${rttr_debug_output_lib_path}" "dummy debug file to be replaced by build")
+endif()
+
+if(NOT EXISTS "${rttr_release_output_lib_path}")
+     file(WRITE "${rttr_release_output_lib_path}" "dummy release file to be replaced by build")
+endif()
+
+include(rttr/rttr-config)
+
 add_dependencies(RTTR::Core rttr_project)
-target_compile_definitions(RTTR::Core INTERFACE RTTR_DLL)
-
-message(STATUS "${install_dir}/lib/rttr_core_d${CMAKE_STATIC_LIBRARY_SUFFIX}")
-#set_property(TARGET RTTR::Core PROPERTY IMPORTED_LOCATION "${install_dir}/lib/rttr_core_d${CMAKE_STATIC_LIBRARY_SUFFIX}")
-set_target_properties(RTTR::Core PROPERTIES	INTERFACE_INCLUDE_DIRECTORIES "${install_dir}/include")	
-set_target_properties(RTTR::Core PROPERTIES IMPORTED_LOCATION_DEBUG   "${install_dir}/lib/rttr_core_d${CMAKE_STATIC_LIBRARY_SUFFIX}")
-set_target_properties(RTTR::Core PROPERTIES IMPORTED_LOCATION_RELEASE "${install_dir}/lib/rttr_core${CMAKE_STATIC_LIBRARY_SUFFIX}")
