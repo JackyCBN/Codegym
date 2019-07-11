@@ -5,7 +5,7 @@ ExternalProject_Add(QtPropertyBrowser_project
     PREFIX QtPropertyBrowser
 	SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/externals/Qt5/QtPropertyBrowser"
 	UPDATE_COMMAND ""
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${configuration} -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH} -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR> -DBUILD_EXAMPLES=OFF -DBUILD_DYNAMIC=ON --config ${configuration}
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${configuration} -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH} -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR> -DBUILD_EXAMPLES=OFF --config ${configuration}
 )
 
 ExternalProject_Get_Property(QtPropertyBrowser_project install_dir)
