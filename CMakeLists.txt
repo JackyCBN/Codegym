@@ -28,9 +28,11 @@ add_executable(Codegym ${PROJECT_SOURCE_DIR}/src/test.cpp)
 
 # Use the Widgets module from Qt 5.
 target_link_libraries(Codegym Qt5::Widgets)
+target_link_libraries(Codegym QtPropertyBrowser)
 
 include(rttr)
 target_link_libraries(Codegym RTTR::Core)
+
 
 # Always keep it last: CPack definitions file
 include(CodegymDist)

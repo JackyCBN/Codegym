@@ -3,7 +3,7 @@ include(ExternalProject)
 set(configuration ${CMAKE_BUILD_TYPE})
 ExternalProject_Add(rttr_project
     PREFIX rttr
-	SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/extern/rttr"
+	SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/externals/rttr"
 	UPDATE_COMMAND ""
     CMAKE_ARGS -DCMAKE_BUILD_TYPE=${configuration} -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR> -DBUILD_EXAMPLES=OFF -DBUILD_DOCUMENTATION=OFF -DBUILD_UNIT_TESTS=OFF -DBUILD_PACKAGE=OFF  --config ${configuration}
 )
