@@ -1,1 +1,1 @@
- cmake -H. -B_builds -G "Visual Studio 15 2017 Win64" && cmake --build _builds
+cmake -DCMAKE_GENERATOR_PLATFORM=x64 -H. -B_builds && cmake --build _builds

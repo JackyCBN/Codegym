@@ -48,7 +48,7 @@ set(_IMPORT_PREFIX "${QtPropertyBrowser_install_dir}")
 add_library(QtPropertyBrowser SHARED IMPORTED)
 
 set_target_properties(QtPropertyBrowser PROPERTIES
-  INTERFACE_INCLUDE_DIRECTORIES "${QtPropertyBrowser_install_dir}/include/QtPropertyBrowser"
+  INTERFACE_INCLUDE_DIRECTORIES "${QtPropertyBrowser_install_dir}/include"
 )
 
 # Load information for each installed configuration.

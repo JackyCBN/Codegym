@@ -12,4 +12,4 @@ list(APPEND CMAKE_PREFIX_PATH ${QT_PREFIX})
 
 find_package(Qt5 ${QT_REQUIRED_VERSION} REQUIRED COMPONENTS Core Gui Widgets)
 include(QtPropertyBrowser)
-
+#add_subdirectory(${CMAKE_SOURCE_DIR}/externals/Qt5/QtPropertyBrowser)

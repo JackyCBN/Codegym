@@ -2,9 +2,6 @@
 #ifndef QT_CORE_PREREQUISITES_H_
 #define QT_CORE_PREREQUISITES_H_
 
-namespace rttr
-{
-
 #define QT_PLATFORM_WINDOWS 1
 #define QT_PLATFORM_LINUX 2
 #define QT_PLATFORM_APPLE 3
@@ -179,6 +176,7 @@ namespace rttr
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // deprecated macro
+/*
 #if QT_COMPILER == QT_COMPILER_GNUC || QT_COMPILER == QT_COMPILER_CLANG || QT_COMPILER == QT_COMPILER_APPLECLANG
 #   define QT_DEPRECATED __attribute__ ((deprecated))
 #   define QT_DEPRECATED_WITH_MSG(msg) __attribute__ ((deprecated(msg)))
@@ -190,7 +188,7 @@ namespace rttr
 #   define QT_DEPRECATED(func) func
 #   define QT_DEPRECATED_MSG(func) func
 #endif
-
+*/
 /////////////////////////////////////////////////////////////////////////////////////////
 // Disable some MSVC compile warnings
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -295,7 +293,5 @@ namespace rttr
 #else
 #   pragma message("WARNING: unknown compiler, don't know how to disable deprecated warnings")
 #endif
-
-} // end namespace rttr
 
 #endif // QT_CORE_PREREQUISITES_H_

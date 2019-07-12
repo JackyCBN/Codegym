@@ -4,7 +4,7 @@ PROJECT(QtPropertyBrowser)
 ########################### Misc. Configs ##############################
 # Add custom cmake files folder
 SET (PROJECT_CMAKE_DIR ${PROJECT_SOURCE_DIR}/cmake)
-SET (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${PROJECT_CMAKE_DIR}")
+LIST ( APPEND CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${PROJECT_CMAKE_DIR}")
 set (QtProperty_DEBUG_POSTFIX "d")
 
 # Add custom Compile Settings and flags
