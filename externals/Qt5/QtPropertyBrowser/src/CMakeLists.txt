@@ -1,9 +1,12 @@
 # Tell CMake to run moc when necessary:
 set(CMAKE_AUTOMOC ON)
-
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
 # As moc files are generated in the binary dir, tell CMake
 # to always look for includes there:
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+if(CMAKE_VERSION VERSION_LESS "3.7.0")
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)
+endif()
 
 set(_SRCS
   qtbuttonpropertybrowser.cpp
@@ -19,26 +22,28 @@ set(_SRCS
 file(GLOB _IMPL_HDRS *.h)
 file(GLOB _PUBLIC_HDRS Qt*)
 
-set(_UI_FORMS
-  )
+set(_UI_FORMS)
 
-set(_RESOURCES
-  qtpropertybrowser.qrc
-  )
+set(_RESOURCES qtpropertybrowser.qrc)
   
 QT5_WRAP_UI(_UI_SRCS ${_UI_FORMS})
 QT5_ADD_RESOURCES(_QRC_SRCS ${_RESOURCES})
 
+#
 set(TARGET_NAME ${PROJECT_NAME})
+#set_target_properties(${TARGET_NAME} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 
-add_library(${TARGET_NAME}
-  ${_SRCS}
-  ${_UI_SRCS}
-  ${_QRC_SRCS}
-  ${_IMPL_HDRS}
-  )
+if (${BUILD_DYNAMIC})
+	message(STATUS "111111111111111")
+	add_library(${TARGET_NAME} SHARED ${_SRCS} ${_UI_SRCS} ${_QRC_SRCS} ${_IMPL_HDRS} ${_RESOURCES} )
+	#target_compile_definitions(${TARGET_NAME} PUBLIC QT_QTPROPERTYBROWSER_DLL)
+else()
+	message(STATUS "222222222222222222")
+	add_library(${TARGET_NAME} STATIC ${_SRCS} ${_UI_SRCS} ${_QRC_SRCS} ${_IMPL_HDRS}  ${_RESOURCES})
+endif()
 
 target_link_libraries(${TARGET_NAME} Qt5::Widgets)
+
 
 ######################### Installation Stuff ###########################
 include(GenerateExportHeader)
@@ -61,4 +66,3 @@ install(
   COMPONENT
     Devel
 )
-

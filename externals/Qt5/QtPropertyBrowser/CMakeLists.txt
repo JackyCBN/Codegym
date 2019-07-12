@@ -5,6 +5,7 @@ PROJECT(QtPropertyBrowser)
 # Add custom cmake files folder
 SET (PROJECT_CMAKE_DIR ${PROJECT_SOURCE_DIR}/cmake)
 SET (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${PROJECT_CMAKE_DIR}")
+set (QtProperty_DEBUG_POSTFIX "d")
 
 # Add custom Compile Settings and flags
 INCLUDE(CompileSettings)
@@ -16,12 +17,13 @@ INCLUDE(InstallSettings)
 
 # Add QT dependencies
 FIND_PACKAGE(Qt5Widgets REQUIRED)
+########################## Add the Examples ############################
+OPTION (BUILD_EXAMPLES "Build Examples" OFF)
+OPTION (BUILD_DYNAMIC "Build Dynamic" ON)
 
 ######################### Add Primary Targets ##########################
 ADD_SUBDIRECTORY(src)
 
-########################## Add the Examples ############################
-OPTION (BUILD_EXAMPLES "Build Examples" ON)
 IF(BUILD_EXAMPLES)
   ADD_SUBDIRECTORY(examples)
 ENDIF()

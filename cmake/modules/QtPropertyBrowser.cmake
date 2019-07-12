@@ -13,7 +13,7 @@ set(QtPropertyBrowser_install_dir ${install_dir})
 file(MAKE_DIRECTORY "${QtPropertyBrowser_install_dir}/include")
 file(MAKE_DIRECTORY "${QtPropertyBrowser_install_dir}/lib")
 
-set(rttr_debug_output_lib_path ${QtPropertyBrowser_install_dir}/lib/QtPropertyBrowser_d${CMAKE_STATIC_LIBRARY_SUFFIX})
+set(rttr_debug_output_lib_path ${QtPropertyBrowser_install_dir}/lib/QtPropertyBrowser${CMAKE_STATIC_LIBRARY_SUFFIX})
 set(rttr_release_output_lib_path ${QtPropertyBrowser_install_dir}/lib/QtPropertyBrowser${CMAKE_STATIC_LIBRARY_SUFFIX})
 # fails on Win: execute_process(COMMAND touch "${QtPropertyBrowser_install_dir}/lib/librttr_core.a")
 # CMake >=3.12: file(TOUCH "${QtPropertyBrowser_install_dir}/lib/librttr_core.a")

@@ -48,6 +48,7 @@
 QT_BEGIN_NAMESPACE
 #endif
 
+/*
 #if defined(Q_WS_WIN)
 #  if !defined(QT_QTPROPERTYBROWSER_EXPORT) && !defined(QT_QTPROPERTYBROWSER_IMPORT)
 #    define QT_QTPROPERTYBROWSER_EXPORT
@@ -63,7 +64,8 @@ QT_BEGIN_NAMESPACE
 #else
 #  define QT_QTPROPERTYBROWSER_EXPORT
 #endif
-
+*/
+#include "qt_prerequisites.h"
 
 class QtAbstractPropertyManager;
 class QtPropertyPrivate;
