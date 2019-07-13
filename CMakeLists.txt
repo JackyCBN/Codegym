@@ -2,8 +2,13 @@ cmake_minimum_required (VERSION 3.8)
 
 project("Codegym" VERSION 1.0)
 
+# For debug libs and exes, add "d" postfix
+set(CodeGym_DEBUG_POSTFIX "_d" CACHE STRING "Set debug library postfix")
+
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY   ${CMAKE_BINARY_DIR} CACHE PATH "Directory where .exe and .dll files are dumped." FORCE)
+
 # where to look first for cmake modules, before ${CMAKE_ROOT}/Modules/ is checked
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
@@ -21,20 +26,7 @@ include(CxxCompiler)
 # This file contains all the needed initialization macros
 include(CodegymDefaults)
 
-
-
-add_executable(Codegym ${PROJECT_SOURCE_DIR}/src/test.cpp)
-
-# Find Qt modules
-include(ConfigQt5)
-
-# Use the Widgets module from Qt 5.
-target_link_libraries(Codegym Qt5::Widgets)
-target_link_libraries(Codegym QtPropertyBrowser)
-
-include(rttr)
-target_link_libraries(Codegym RTTR::Core)
-
+add_subdirectory(Src)
 
 # Always keep it last: CPack definitions file
 include(CodegymDist)

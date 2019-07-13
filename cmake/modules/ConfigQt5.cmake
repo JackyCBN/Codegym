@@ -7,9 +7,9 @@ set(CMAKE_AUTOMOC ON)
 # Create code from a list of Qt designer ui files
 set(CMAKE_AUTOUIC ON)
 
-set(QT_PREFIX ${CMAKE_SOURCE_DIR}/externals/Qt5/msvc2017_64/)
+set(QT_PREFIX ${CMAKE_SOURCE_DIR}/Externals/Qt5/msvc2017_64/)
 list(APPEND CMAKE_PREFIX_PATH ${QT_PREFIX})
 
 find_package(Qt5 ${QT_REQUIRED_VERSION} REQUIRED COMPONENTS Core Gui Widgets)
 include(QtPropertyBrowser)
-#add_subdirectory(${CMAKE_SOURCE_DIR}/externals/Qt5/QtPropertyBrowser)
+#add_subdirectory(${CMAKE_SOURCE_DIR}/Externals/Qt5/QtPropertyBrowser)

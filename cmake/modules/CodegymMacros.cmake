@@ -35,8 +35,26 @@ MACRO(COPY_IF_DIFFERENT FROM_DIR TO_DIR FILES TARGETS TAGS)
     SET(${TARGETS} ${AddTargets})
 ENDMACRO(COPY_IF_DIFFERENT FROM_DIR TO_DIR FILES TARGETS TAGS)
 
+MACRO(COPY_IF_DIFFERENT FROM_DIR TO_DIR FILES TARGETS TAGS)
+file(MAKE_DIRECTORY "${rttr_install_dir}/lib")
+ENDMACRO()
+
 
 macro(copy_shared_lib APP LIBRARY DLL)
+	set(librayTarget					${DLL})
+	IF(NOT "${LIBRARY}" STREQUAL "")
+		set(librayTarget				${LIBRARY}::${DLL})
+	ENDIF(NOT "${LIBRARY}" STREQUAL "")
+	
+	# find the release *.dll file
+	get_target_property(librayLocationVar ${librayTarget} LOCATION)
+	# find the debug *d.dll file
+	get_target_property(librayLocationVarDebug ${librayTarget} IMPORTED_LOCATION_DEBUG)
+    add_custom_command(TARGET ${APP} POST_BUILD
+       COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:Debug>:${librayLocationVarDebug}> $<$<NOT:$<CONFIG:Debug>>:${librayLocationVar}> $<TARGET_FILE_DIR:${APP}>)
+endmacro()
+
+macro(withRelative_copy_shared_lib APP LIBRARY DLL RelativeDir)
 	set(librayLocationVar 			${DLL}Location)
 	set(librayLocationVarDebug   	${DLL}LocationDebug)
 	set(librayTarget					${DLL})
@@ -52,5 +70,20 @@ macro(copy_shared_lib APP LIBRARY DLL)
 		get_target_property(${librayLocationVarDebug} ${librayTarget} IMPORTED_LOCATION_DEBUG)
 
     add_custom_command(TARGET ${APP} POST_BUILD
-       COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:Debug>:${${librayLocationVarDebug}}> $<$<NOT:$<CONFIG:Debug>>:${${librayLocationVar}}> $<TARGET_FILE_DIR:${APP}>)
+       COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:Debug>:${${librayLocationVarDebug}}> $<$<NOT:$<CONFIG:Debug>>:${${librayLocationVar}}> $<TARGET_FILE_DIR:${APP}>/${RelativeDir})
 endmacro()
+
+macro(get_qt5_plugin_info _qt_plugin_name plugins_name_var plugins_type_var plugins_dir_var)
+      get_target_property(_qt_plugin_path "${_qt_plugin_name}" LOCATION)
+      if(EXISTS "${_qt_plugin_path}")
+		get_filename_component(_qt_plugin_file "${_qt_plugin_path}" NAME)
+        get_filename_component(_qt_plugin_dir "${_qt_plugin_path}" PATH)
+        get_filename_component(_qt_plugin_type "${_qt_plugin_dir}" NAME)
+		set(${plugins_name_var} ${_qt_plugin_file})
+		set(${plugins_type_var} ${_qt_plugin_type})
+		set(${plugins_dir_var} ${_qt_plugin_dir})
+      else()
+        message(FATAL_ERROR "QT plugin ${_qt_plugin_name} not found")
+      endif()
+endmacro()
+
