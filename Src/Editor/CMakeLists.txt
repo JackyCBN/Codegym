@@ -1,7 +1,16 @@
 project("Editor" VERSION 1.0)
 
-set(HPP_FILES)
-set(SRC_FILES ${PROJECT_SOURCE_DIR}/WinMain.cpp)
+#set(HPP_FILES)
+#set(SRC_FILES ${PROJECT_SOURCE_DIR}/WinMain.cpp)
+
+
+# files
+FILE(GLOB_RECURSE SRC_FILES
+	"${PROJECT_SOURCE_DIR}/*.cpp"
+	"${PROJECT_SOURCE_DIR}/*.h")
+
+# library
+createSrcGroups(SRC_FILES)
 
 add_executable(Editor ${SRC_FILES})
 

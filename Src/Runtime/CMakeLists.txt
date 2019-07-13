@@ -2,12 +2,18 @@ project("Runtime" VERSION 1.0)
 
 #add_executable(Runtime ${PROJECT_SOURCE_DIR}/main.cpp)
 
-set(HPP_FILES ${PROJECT_SOURCE_DIR}/Base.h
-				${PROJECT_SOURCE_DIR}/ExportTest.h)
-set(SRC_FILES ${PROJECT_SOURCE_DIR}/Test.cpp
-			 ${PROJECT_SOURCE_DIR}/ExportTest.cpp)
+#set(HPP_FILES ${PROJECT_SOURCE_DIR}/Base.h				${PROJECT_SOURCE_DIR}/ExportTest.h)
+#set(SRC_FILES ${PROJECT_SOURCE_DIR}/Test.cpp			 ${PROJECT_SOURCE_DIR}/ExportTest.cpp)
 			 
-add_library(Runtime SHARED ${SRC_FILES} ${HPP_FILES})
+# files
+FILE(GLOB_RECURSE SRC_FILES
+	"${PROJECT_SOURCE_DIR}/*.cpp"
+	"${PROJECT_SOURCE_DIR}/*.h")
+
+# library
+createSrcGroups(SRC_FILES)
+			 
+add_library(Runtime SHARED ${SRC_FILES})
 add_library(Codegym::Runtime ALIAS Runtime)
 set_target_properties (Runtime PROPERTIES DEBUG_POSTFIX ${CodeGym_DEBUG_POSTFIX})
 

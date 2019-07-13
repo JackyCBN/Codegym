@@ -13,8 +13,8 @@ int WinMain(int argc, char **argv)
 	QApplication app (argc, argv);
 	QMainWindow mw;
 
-	//QLabel* label = new QLabel(&mw);
-	//label->setText(std::to_string(et.foo()).c_str());
+	QLabel* label = new QLabel(&mw);
+	label->setText(std::to_string(et.foo()).c_str());
 	mw.show();
 	
 	return app.exec();

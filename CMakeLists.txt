@@ -17,6 +17,9 @@ if(NOT CMAKE_BUILD_TYPE)
         set(CMAKE_BUILD_TYPE Debug)
 endif()
 
+#utility_source
+include(utility)
+
 # macros
 include(CodegymMacros)
 
