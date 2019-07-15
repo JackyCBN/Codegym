@@ -47,30 +47,27 @@ macro(copy_shared_lib APP LIBRARY DLL)
 	ENDIF(NOT "${LIBRARY}" STREQUAL "")
 	
 	# find the release *.dll file
-	get_target_property(librayLocationVar ${librayTarget} LOCATION)
+	get_target_property(librayLocationVar ${librayTarget} IMPORTED_LOCATION_RELEASE)
 	# find the debug *d.dll file
 	get_target_property(librayLocationVarDebug ${librayTarget} IMPORTED_LOCATION_DEBUG)
+	#message(STATUS "copy_shared_lib librayLocationVar:${librayLocationVar} librayLocationVarDebug:${librayLocationVarDebug}")
     add_custom_command(TARGET ${APP} POST_BUILD
        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:Debug>:${librayLocationVarDebug}> $<$<NOT:$<CONFIG:Debug>>:${librayLocationVar}> $<TARGET_FILE_DIR:${APP}>)
 endmacro()
 
 macro(withRelative_copy_shared_lib APP LIBRARY DLL RelativeDir)
-	set(librayLocationVar 			${DLL}Location)
-	set(librayLocationVarDebug   	${DLL}LocationDebug)
 	set(librayTarget					${DLL})
 	IF(NOT "${LIBRARY}" STREQUAL "")
-		set(librayLocationVar 			${LIBRARY}_${DLL}Location)
-		set(librayLocationVarDebug  	${LIBRARY}_${DLL}LocationDebug)
 		set(librayTarget				${LIBRARY}::${DLL})
 	ENDIF(NOT "${LIBRARY}" STREQUAL "")
 	
 		# find the release *.dll file
-		get_target_property(${librayLocationVar} ${librayTarget} LOCATION)
+		get_target_property(librayLocationVar ${librayTarget} IMPORTED_LOCATION_RELEASE)
 		# find the debug *d.dll file
-		get_target_property(${librayLocationVarDebug} ${librayTarget} IMPORTED_LOCATION_DEBUG)
+		get_target_property(librayLocationVarDebug ${librayTarget} IMPORTED_LOCATION_DEBUG)
 
     add_custom_command(TARGET ${APP} POST_BUILD
-       COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:Debug>:${${librayLocationVarDebug}}> $<$<NOT:$<CONFIG:Debug>>:${${librayLocationVar}}> $<TARGET_FILE_DIR:${APP}>/${RelativeDir})
+       COMMAND ${CMAKE_COMMAND} -E copy_if_different $<$<CONFIG:Debug>:${librayLocationVarDebug}> $<$<NOT:$<CONFIG:Debug>>:${librayLocationVar}> $<TARGET_FILE_DIR:${APP}>/${RelativeDir})
 endmacro()
 
 macro(get_qt5_plugin_info _qt_plugin_name plugins_name_var plugins_type_var plugins_dir_var)
