@@ -6,11 +6,13 @@
 #include <iostream>
 #include "Runtime/ExportTest.h"
 #include "Window/MainWindow.h"
+#include "EditorHelper.h"
 
 int WinMain(int argc, char **argv)
 {
 	ExportTest et;
 
+	ExecuteStartups();
 	QApplication app (argc, argv);
 	MainWindow mw;
 	mw.showMaximized();

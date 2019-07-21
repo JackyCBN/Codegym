@@ -24,6 +24,7 @@ target_compile_definitions(Runtime PUBLIC CG_DLL)
 
 target_include_directories(Runtime PUBLIC
                                $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../>
+							   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/.>
                                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
 							   $<BUILD_INTERFACE:${ConfigurationDirectory}>
                                $<INSTALL_INTERFACE:include>)
