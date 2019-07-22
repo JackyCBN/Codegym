@@ -7,4 +7,4 @@ void test()
 	
 }
 
-MENU_STARTUP(test);
+STARTUP(test);

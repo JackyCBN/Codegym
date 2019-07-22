@@ -3,4 +3,5 @@
 typedef void StartUpFunc();
 void AddStartup(StartUpFunc* func);
 void ExecuteStartups();
-#define MENU_STARTUP(a) struct MENU_STARTUP##a { MENU_STARTUP##a() {AddStartup(&a);} }; static MENU_STARTUP##a gMENU_STARTUP##a##__LINE__;
+
+#define STARTUP(a) struct STARTUP##a { STARTUP##a() {AddStartup(&(a));} }; static STARTUP##a gSTARTUP##a##__LINE__;
