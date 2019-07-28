@@ -8,6 +8,7 @@ class MainWindow : public QMainWindow
 public:
 	MainWindow(QWidget* parent = nullptr);
 
+	void InitLayout();
 	QMenuBar* GetMenubar() const;
 
 public slots:

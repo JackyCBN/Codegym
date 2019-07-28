@@ -18,11 +18,14 @@ int WinMain(int argc, char **argv)
 
 	QApplication app (argc, argv);
 	MainWindow mw;
-	mw.showMaximized();
-
+	mw.InitLayout();
 	cMenuManager::Initlize(&mw);
 	ExecuteStartups();
 	cMenuManager::RebuildOsMenus();
+
+	mw.showMaximized();
+
+
 	//QMainWindow mw;
 
 	//QLabel* label = new QLabel(&mw);
