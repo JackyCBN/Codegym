@@ -7,15 +7,22 @@
 #include "Runtime/ExportTest.h"
 #include "Window/MainWindow.h"
 #include "EditorHelper.h"
+#include "Menu/MenuManager.h"
+
+using namespace codegym::editor;
 
 int WinMain(int argc, char **argv)
 {
 	ExportTest et;
 
-	ExecuteStartups();
+
 	QApplication app (argc, argv);
 	MainWindow mw;
 	mw.showMaximized();
+
+	cMenuManager::Initlize(&mw);
+	ExecuteStartups();
+	cMenuManager::RebuildOsMenus();
 	//QMainWindow mw;
 
 	//QLabel* label = new QLabel(&mw);

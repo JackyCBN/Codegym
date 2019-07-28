@@ -3,6 +3,9 @@ project("Editor" VERSION 1.0)
 #set(HPP_FILES)
 #set(SRC_FILES ${PROJECT_SOURCE_DIR}/WinMain.cpp)
 
+# make sure first. so CMAKE_AUTOMOC can take effect for all cpp
+# Find Qt modules
+include(ConfigQt5)
 
 # files
 FILE(GLOB_RECURSE SRC_FILES
@@ -15,8 +18,7 @@ createSrcGroups(SRC_FILES)
 add_executable(Editor ${SRC_FILES})
 
 set_target_properties (Editor PROPERTIES DEBUG_POSTFIX ${CodeGym_DEBUG_POSTFIX})
-# Find Qt modules
-include(ConfigQt5)
+
 
 target_include_directories(Editor PUBLIC
                                $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../>

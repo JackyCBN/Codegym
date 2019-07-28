@@ -52,18 +52,25 @@ namespace codegym::editor
 		bool		m_checked;
 		bool		m_enabled;
 
-		sMenuItem(int postion, const string& name, const string& hotkey, const string& cmd, MenuInterface* target, Menu* submenu);
+		sMenuItem(int position, const string& name, const string& hotkey, const string& cmd, MenuInterface* target, Menu* submenu);
 		~sMenuItem();
 		bool IsSeparator() const;
+		bool IsSubmenu() const;
 		bool Execute() const;
 
 		bool		AddMenuItem(sMenuItem* menuItem);
-		sMenuItem* GetSubmenu(const string& submenuName) const;
+		sMenuItem*	GetSubmenu(const string& submenuName) const;
+		bool		RemoveMenuItem(const string& submenuName);
+		bool		Enabled() const;
+		bool		Checked() const;
+
+		void		CollectInterfaces(vector<MenuInterface*>& menuInterfaces);
+
 		/**
 		 * Create Factory
 		 */
-		static sMenuItem* CreateMenuItem(int postion, const string& name, const string& hotkey, const string& cmd, MenuInterface* target);
-		static sMenuItem* CreateSubmenu(int postion, const string& name, const string& hotkey, const string& cmd, Menu* submenu);
+		static sMenuItem* CreateMenuItem(int position, const string& name, const string& hotkey, const string& cmd, MenuInterface* target);
+		static sMenuItem* CreateSubmenu(int postion, const string& name);
 		static sMenuItem* CreateSeparator();
 	};
 

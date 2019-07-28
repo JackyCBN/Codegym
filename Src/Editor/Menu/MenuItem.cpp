@@ -1,29 +1,42 @@
 #include "MenuItem.h"
 #include <cassert>
+#include "MenuManager.h"
 
 using namespace codegym::editor;
 
-sMenuItem::sMenuItem(int postion, const string& name, const string& hotkey, const string& cmd, MenuInterface* target,
+sMenuItem::sMenuItem(int position, const string& name, const string& hotkey, const string& cmd, MenuInterface* target,
 	Menu* submenu)
-	:m_position(postion)
+	:m_position(position)
 	,m_name(name)
 	,m_hotkey(hotkey)
 	,m_command(cmd)
 	,m_submenu(submenu)
-	,m_target(target)	
+	,m_target(target)
+	,m_parent(nullptr)
+	,m_enabled(true)
+	,m_checked(false)
 {
-
+	cMenuManager::RegisterMenuItem(this);
 }
 
 sMenuItem::~sMenuItem()
 {
 	SAFE_DELETE(m_submenu);
-	SAFE_DELETE(m_target);
+	// m_target share by multi item. so not necessary to delete it. 
+	// just let it even memory leak
+	// also for most, it may be static global variable
+	//SAFE_DELETE(m_target);
+	cMenuManager::RegisterMenuItem(this);
 }
 
 bool sMenuItem::IsSeparator() const
 {
 	return m_name.empty();
+}
+
+bool sMenuItem::IsSubmenu() const
+{
+	return m_submenu != nullptr;
 }
 
 bool sMenuItem::Execute() const
@@ -49,20 +62,24 @@ bool sMenuItem::AddMenuItem(sMenuItem* menuItem)
 {
 	if (m_submenu)
 	{
-		size_t pos = m_submenu->size();
-		for (size_t i = 0; i != m_submenu->size(); ++i)
+		int pos = (int)m_submenu->size();
+		for (int i = 0; i != m_submenu->size(); ++i)
 		{
-			if (i > menuItem->m_position)
+			if (menuItem->m_position < (*m_submenu)[i]->m_position)
 			{
 				pos = i;
 				break;
 			}
-
-			auto iter = m_submenu->begin();
-			advance(iter, pos);
-			m_submenu->insert(iter, menuItem);
 		}
+
+		auto iter = m_submenu->begin();
+		advance(iter, pos);
+		m_submenu->insert(iter, menuItem);
+		menuItem->m_parent = this;
+		return true;
 	}
+
+	return false;
 }
 
 sMenuItem* sMenuItem::GetSubmenu(const string& submenuName) const
@@ -81,17 +98,63 @@ sMenuItem* sMenuItem::GetSubmenu(const string& submenuName) const
 	return nullptr;
 }
 
-
-sMenuItem* sMenuItem::CreateMenuItem(int postion, const string& name,
-	const string& hotkey, const string& cmd, MenuInterface* target)
+bool sMenuItem::RemoveMenuItem(const string& submenuName)
 {
-	return new sMenuItem(postion, name, hotkey, cmd, target, nullptr);
+	if (m_submenu)
+	{
+		for (size_t i = 0; i != m_submenu->size(); ++i)
+		{
+			sMenuItem* item = (*m_submenu)[i];
+			if (item->m_name == submenuName && !item->IsSubmenu())
+			{
+				auto iter = m_submenu->begin();
+				advance(iter, i);
+				SAFE_DELETE(*iter);
+				m_submenu->erase(iter);
+
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
-sMenuItem* sMenuItem::CreateSubmenu(int postion, const string& name, const string& hotkey, const string& cmd,
-	Menu* submenu)
+bool sMenuItem::Enabled() const
 {
-	return new sMenuItem(postion, name, hotkey, cmd, nullptr, submenu);
+	return m_enabled && (m_target == nullptr || m_target->Validate(*this));
+}
+
+bool sMenuItem::Checked() const
+{
+	return m_checked;
+}
+
+void sMenuItem::CollectInterfaces(vector<MenuInterface*>& menuInterfaces)
+{
+	if(!IsSubmenu())
+	{
+		menuInterfaces.push_back(m_target);
+	}
+	else
+	{
+		for(auto& item : *m_submenu)
+		{
+			item->CollectInterfaces(menuInterfaces);
+		}
+	}
+}
+
+
+sMenuItem* sMenuItem::CreateMenuItem(int position, const string& name,
+	const string& hotkey, const string& cmd, MenuInterface* target)
+{
+	return new sMenuItem(position, name, hotkey, cmd, target, nullptr);
+}
+
+sMenuItem* sMenuItem::CreateSubmenu(int position, const string& name)
+{
+	return new sMenuItem(position, name, "", "", nullptr, new Menu);
 }
 
 /**
