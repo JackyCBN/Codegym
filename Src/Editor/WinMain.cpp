@@ -18,11 +18,11 @@ int WinMain(int argc, char **argv)
 
 	QApplication app (argc, argv);
 	MainWindow mw;
-	mw.InitLayout();
+	
 	cMenuManager::Initlize(&mw);
 	ExecuteStartups();
 	cMenuManager::RebuildOsMenus();
-
+	mw.InitLayout();
 	mw.showMaximized();
 
 

@@ -2,6 +2,7 @@
 #include <QMenuBar>
 
 InspectorWindow::InspectorWindow(QWidget* parent)
+	:QtTreePropertyBrowser(parent)
 {
 
 

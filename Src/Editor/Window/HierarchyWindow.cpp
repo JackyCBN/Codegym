@@ -2,5 +2,6 @@
 #include <QMenuBar>
 
 HierarchyWindow::HierarchyWindow(QWidget* parent)
+	:QTreeView(parent)
 {
 }

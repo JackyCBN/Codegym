@@ -41,7 +41,8 @@ void test()
 	cMenuManager::AddMenuItem("File/test", -1, "0", "test", &object_menu);
 	cMenuManager::AddMenuItem("File/test2", 9, "0", "test", &object_menu);
 	cMenuManager::AddMenuItem("File/foo/abc", 1, "0", "test", &object_menu);
-	cMenuManager::AddMenuItem("file/foo1/foo2/cde", 1, "0", "test", &object_menu);
+	cMenuManager::AddMenuItem("File/foo1/foo2/cde", 1, "0", "test", &object_menu);
+	cMenuManager::AddMenuItem("Help/about", 1, "0", "test", &object_menu);
 }
 
 STARTUP(test);
