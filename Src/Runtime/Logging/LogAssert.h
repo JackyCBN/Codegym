@@ -1,0 +1,2 @@
+#define DebugAssertMsg
+#define DebugAssert

@@ -3,13 +3,14 @@
 #include <qmenu.h>
 
 class QWidget;
-class MainWindow;
+
 
 namespace codegym::editor
 {
 	enum class eExecutionCause;
 	struct sMenuItem;
 	class MenuInterface;
+	class MainWindow;
 	using Menu = vector<sMenuItem*>;
 
 	class cMenuManager

@@ -1,21 +1,45 @@
 #pragma once
 
 #include <QMainWindow>
+#include "BaseClasses/GameObject.h"
 
-class MainWindow : public QMainWindow
+class QStandardItem;
+
+namespace codegym {
+	namespace runtime {
+		class Transform;
+		class SceneGraph;
+	}
+}
+
+class QTextBrowser;
+
+namespace codegym::editor
 {
-	Q_OBJECT
-public:
-	MainWindow(QWidget* parent = nullptr);
-	void CreateHierarchy();
-	void CreateProperties();
-	void CreateOutput();
+	class HierarchyWindow;
+	class InspectorWindow;
 
-	void InitLayout();
-	QMenuBar* GetMenubar() const;
+	class MainWindow : public QMainWindow
+	{
+		Q_OBJECT
+	public:
+		MainWindow(QWidget* parent = nullptr);
+		QMenuBar* GetMenubar() const;
 
-public slots:
-	void clickMenuItem();
-private:
-	QMenuBar* m_menubar = nullptr;
-};
+		void SetupLayout();
+		void InitContent(runtime::SceneGraph* sg);
+
+	private:
+		void CreateHierarchy();
+		void CreateProperties();
+		void CreateOutput();
+		void CreateItemRecusive(runtime::Transform* node, QStandardItem* item);
+
+		void InitHierarchyContent(runtime::SceneGraph* sg);
+
+		QMenuBar* m_menubar = nullptr;
+		HierarchyWindow* m_hierarchyWindow;
+		InspectorWindow* m_inspectorWindow;
+		QTextBrowser*	 m_outputWindow;
+	};
+}

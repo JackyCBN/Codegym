@@ -1,22 +1,45 @@
 #include "MainWindow.h"
 #include <QMenuBar>
 #include <QHBoxLayout>
-#include "HierarchyWindow.h"
-#include "InspectorWindow.h"
-#include <QLabel>
-#include <QTableView>
 #include <QLineEdit>
 #include <QApplication>
 #include <QDockWidget>
 #include <QListWidget>
 #include <QTextBrowser>
 
+#include "Hierarchy/HierarchyWindow.h"
+#include "Inspector/InspectorWindow.h"
+#include "Hierarchy/HierarchyViewModel.h"
+#include "BaseClasses/GameObject.h"
+#include "Scene/SceneGraph.h"
+#include "Component/Transform.h"
+
+using namespace codegym::editor;
+using namespace codegym::runtime;
 MainWindow::MainWindow(QWidget* parent)
 	:QMainWindow(parent)
 {
 	m_menubar = menuBar();
+}
 
+void MainWindow::SetupLayout()
+{
+	CreateProperties();
+	CreateHierarchy();
+	CreateOutput();
+	auto widget = new QWidget(this);
+	this->setCentralWidget(widget);
 
+}
+
+void MainWindow::InitContent(SceneGraph* sg)
+{
+	InitHierarchyContent(sg);
+}
+
+QMenuBar* MainWindow::GetMenubar() const
+{
+	return m_menubar;
 }
 
 void MainWindow::CreateHierarchy()
@@ -44,15 +67,15 @@ void MainWindow::CreateHierarchy()
 
 	addDockWidget(Qt::LeftDockWidgetArea, m_explorerDock);
 
-	HierarchyWindow* hierarchy = new HierarchyWindow(m_explorerDock);
+	m_hierarchyWindow = new HierarchyWindow(m_explorerDock);
 
 
-	hierarchy->viewport()->installEventFilter(this);
-	hierarchy->setObjectName("treeview");
-	hierarchy->setFocusPolicy(Qt::StrongFocus);
-	hierarchy->setContextMenuPolicy(Qt::CustomContextMenu);
+	m_hierarchyWindow->viewport()->installEventFilter(this);
+	m_hierarchyWindow->setObjectName("treeview");
+	m_hierarchyWindow->setFocusPolicy(Qt::StrongFocus);
+	m_hierarchyWindow->setContextMenuPolicy(Qt::CustomContextMenu);
 
-	mainLayout->addWidget(hierarchy, 1, 1);
+	mainLayout->addWidget(m_hierarchyWindow, 1, 1);
 	mainLayout->setContentsMargins(0, 0, 0, 0);
 
 	//m_explorerDock->setWidget(styleWidget);
@@ -87,20 +110,20 @@ void MainWindow::CreateProperties()
 
 	addDockWidget(Qt::RightDockWidgetArea, m_propertiesDock);
 
-	auto m_propertiesBrowser = new InspectorWindow(this);
-	m_propertiesBrowser->installEventFilter(this);
-	m_propertiesBrowser->setObjectName(tr("propertyBrowser"));
-	m_propertiesDock->setWidget(m_propertiesBrowser);
+	m_inspectorWindow = new InspectorWindow(this);
+	m_inspectorWindow->installEventFilter(this);
+	m_inspectorWindow->setObjectName(tr("propertyBrowser"));
+	m_propertiesDock->setWidget(m_inspectorWindow);
 
-	m_propertiesBrowser->setFocusPolicy(Qt::StrongFocus);
-	m_propertiesBrowser->installEventFilter(this);
+	m_inspectorWindow->setFocusPolicy(Qt::StrongFocus);
+	m_inspectorWindow->installEventFilter(this);
 	m_propertiesDock->setFocusPolicy(Qt::ClickFocus);
 	m_propertiesDock->installEventFilter(this);
 	if (m_propertiesDock->titleBarWidget())
 		m_propertiesDock->titleBarWidget()->installEventFilter(this);
 
 	//Drag and drop
-	m_propertiesBrowser->setAcceptDrops(true);
+	m_inspectorWindow->setAcceptDrops(true);
 	connect(m_propertiesDock, SIGNAL(visibilityChanged(bool)), this, SLOT(propertiesViewShowChange(bool)));
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5,6,0))
@@ -132,7 +155,7 @@ void MainWindow::CreateOutput()
 	m_outPutDock->setWidget(styleWidget);
 	addDockWidget(Qt::BottomDockWidgetArea, m_outPutDock);
 
-	auto m_outputWindow = new QTextBrowser(m_outPutDock);
+	m_outputWindow = new QTextBrowser(m_outPutDock);
 	m_outPutDock->setWidget(m_outputWindow);
 
 	m_outputWindow->setFocusPolicy(Qt::ClickFocus);
@@ -153,24 +176,68 @@ void MainWindow::CreateOutput()
 	resizeDocks(docks, { 100, 120 }, Qt::Vertical);
 #endif
 }
-void MainWindow::InitLayout()
-{
-	CreateProperties();
-	CreateHierarchy();
-	CreateOutput();
-	auto widget = new QWidget(this);
-	this->setCentralWidget(widget);
 
+void MainWindow::CreateItemRecusive(Transform* node, QStandardItem* Item)
+{
+	for(int i=0; i!= node->ChildCount(); ++i)
+	{
+		auto childTrans = node->GetChild(i);
+
+		QList<QStandardItem*> itemslst;
+		QStandardItem* childItem = new QStandardItem(childTrans->GetGameObject()->Name());
+		itemslst.append(childItem);
+		Item->appendRow(itemslst);
+
+		CreateItemRecusive(childTrans, childItem);
+	}
 }
 
-QMenuBar* MainWindow::GetMenubar() const
+void MainWindow::InitHierarchyContent(SceneGraph* sg)
 {
-	return m_menubar;
-}
+	HierarchyViewModel* model = new HierarchyViewModel(m_hierarchyWindow);
 
-void MainWindow::clickMenuItem()
-{
-	int a = 1;
+	QList<QStandardItem*> itemslst;
+	GameObject* node = sg->Root();
+	QStandardItem* rootItem = new QStandardItem(node->Name());
+	itemslst.append(rootItem);
+	model->appendRow(itemslst);
 
-	int b = 2;
+	CreateItemRecusive(node->QueryComponent<Transform>(), rootItem);
+
+
+	//model->setHorizontalHeaderLabels(QStringList() << QStringLiteral("序号") << QStringLiteral("名称"));     //设置列头
+	//for (int i = 0; i < 5; i++)
+	//{
+	//	//一级节点，加入mModel
+	//	QList<QStandardItem*> items1;
+	//	QStandardItem* item1 = new QStandardItem(QString::number(i));
+	//	QStandardItem* item2 = new QStandardItem(QStringLiteral("一级节点"));
+	//	items1.append(item1);
+	//	items1.append(item2);
+	//	model->appendRow(items1);
+
+	//	for (int j = 0; j < 5; j++)
+	//	{
+	//		//二级节点,加入第1个一级节点
+	//		QList<QStandardItem*> items2;
+	//		QStandardItem* item3 = new QStandardItem(QString::number(j));
+	//		QStandardItem* item4 = new QStandardItem(QStringLiteral("二级节点"));
+	//		items2.append(item3);
+	//		items2.append(item4);
+	//		item1->appendRow(items2);
+
+	//		for (int k = 0; k < 5; k++)
+	//		{
+	//			//三级节点,加入第1个二级节点
+	//			QList<QStandardItem*> items3;
+	//			QStandardItem* item5 = new QStandardItem(QString::number(k));
+	//			QStandardItem* item6 = new QStandardItem(QStringLiteral("三级节点"));
+	//			items3.append(item5);
+	//			items3.append(item6);
+	//			item3->appendRow(items3);
+	//		}
+	//	}
+	//}
+	//2，给QTreeView应用model
+	m_hierarchyWindow->setModel(model);
 }

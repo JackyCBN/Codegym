@@ -8,13 +8,19 @@
 #include "Window/MainWindow.h"
 #include "EditorHelper.h"
 #include "Menu/MenuManager.h"
+#include "BaseClasses/GameObject.h"
+#include "Component/Transform.h"
+#include "Scene/SceneGraph.h"
 
 using namespace codegym::editor;
+using namespace codegym::runtime;
 
 int WinMain(int argc, char **argv)
 {
 	ExportTest et;
 
+	SceneGraph  sg;
+	sg.Initlize();
 
 	QApplication app (argc, argv);
 	MainWindow mw;
@@ -22,8 +28,12 @@ int WinMain(int argc, char **argv)
 	cMenuManager::Initlize(&mw);
 	ExecuteStartups();
 	cMenuManager::RebuildOsMenus();
-	mw.InitLayout();
+	mw.SetupLayout();
+	mw.InitContent(&sg);
 	mw.showMaximized();
+
+	
+
 
 
 	//QMainWindow mw;

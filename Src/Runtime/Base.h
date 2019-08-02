@@ -1,3 +1,7 @@
-#include "Prerequisites.h"
+#pragma once
 #include "Std.h"
-#include "MemoryMacro.h"
+
+#include "Prerequisites.h"
+
+// memory
+#include "Macros/MemoryMacro.h"
