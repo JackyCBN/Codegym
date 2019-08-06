@@ -90,3 +90,10 @@ Component* GameObject::QueryComponentAtIndex(int index) const
 
 	return comp;
 }
+
+RTTR_REGISTRATION
+{
+	using namespace rttr;
+		registration::class_<GameObject>("GameObject")
+			.property("Name", &GameObject::mName);
+}

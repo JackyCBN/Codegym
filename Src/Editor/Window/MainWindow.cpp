@@ -6,6 +6,8 @@
 #include <QDockWidget>
 #include <QListWidget>
 #include <QTextBrowser>
+#include <QMessageBox>
+#include "QtPropertyBrowser/QtVariantPropertyManager"
 
 #include "Hierarchy/HierarchyWindow.h"
 #include "Inspector/InspectorWindow.h"
@@ -13,9 +15,24 @@
 #include "BaseClasses/GameObject.h"
 #include "Scene/SceneGraph.h"
 #include "Component/Transform.h"
+#include "Menu/MenuItem.h"
+
+
+
+
 
 using namespace codegym::editor;
 using namespace codegym::runtime;
+
+struct ProptertyInfo
+{
+	GameObject* go;
+	Component* comp;
+	rttr::property rttr;
+};
+
+map< QtProperty*, ProptertyInfo> mPropertyMap;
+
 MainWindow::MainWindow(QWidget* parent)
 	:QMainWindow(parent)
 {
@@ -35,6 +52,114 @@ void MainWindow::SetupLayout()
 void MainWindow::InitContent(SceneGraph* sg)
 {
 	InitHierarchyContent(sg);
+}
+
+void MainWindow::treeViewClickProgress(const QModelIndex& index)
+{
+	HierarchyViewModel* m_model = (HierarchyViewModel*)index.model();
+	QStandardItem* pItem = m_model->itemFromIndex(index);
+
+	GameObject* go = static_cast<GameObject*>(pItem->data().value<void*>());
+
+	if (go)
+	{
+		auto name = go->Name();
+		int a = 1;
+		//QMessageBox::about(this, name, name);
+		m_pVarManager->clear();
+
+		// GameObject
+		mPropertyMap.clear();
+		QtProperty* goGroupItem = m_pVarManager->addProperty(QtVariantPropertyManager::groupTypeId(), QStringLiteral("GameObject"));
+		// name
+		QtVariantProperty* item = m_pVarManager->addProperty(QVariant::String, QStringLiteral("Name: "));
+		item->setValue(name);
+		QVariant goVariant(QVariant::fromValue(static_cast<void*>(go)));
+		item->setAttribute("GameObject", goVariant);
+		goGroupItem->addSubProperty(item);
+		m_inspectorWindow->addProperty(goGroupItem);
+
+		mPropertyMap.insert(std::make_pair(item, ProptertyInfo{ go , nullptr, TypeOf<GameObject>().get_property("Name") }));
+;
+		for(int i=0; i!=go->GetComponentCount(); ++i)
+		{
+			Component& comp =  go->GetComponentAtIndex(i);
+			QtProperty* compGroupItem = m_pVarManager->addProperty(QtVariantPropertyManager::groupTypeId(), comp.get_type().get_name().begin());
+
+			rttr::type type = comp.get_type();
+			for(auto& prop : type.get_properties())
+			{
+				if(prop.get_type() == TypeOf<float>() || prop.get_type() == TypeOf<double>())
+				{
+					QtVariantProperty* copmItem = m_pVarManager->addProperty(QVariant::Double, prop.get_name().begin());
+					auto val = prop.get_value(comp);
+					copmItem->setValue(val.to_float());
+
+					QVariant compVariant(QVariant::fromValue(static_cast<void*>(&comp)));
+					copmItem->setAttribute("Component", compVariant);
+
+					QVariant rttrVariant(prop.get_name().begin());
+					copmItem->setAttribute("Rttr", rttrVariant);
+
+					compGroupItem->addSubProperty(copmItem);
+					mPropertyMap.insert(std::make_pair(copmItem, ProptertyInfo{ go , &comp, prop }));
+				}
+			}
+			m_inspectorWindow->addProperty(compGroupItem);
+		}
+
+		//item = m_pVarManager->addProperty(QVariant::Bool, QStringLiteral("Bool: "));
+		//item->setValue(true);
+		//groupItem->addSubProperty(item);
+
+		//item = m_pVarManager->addProperty(QVariant::Double, QStringLiteral("Double: "));
+		//item->setValue(3.1415);
+		//groupItem->addSubProperty(item);
+
+		//item = m_pVarManager->addProperty(QVariant::String, QStringLiteral("String: "));
+		//item->setValue(QStringLiteral("hello world"));
+		//groupItem->addSubProperty(item);
+
+		
+	}
+}
+
+void MainWindow::variantPropertyValueChanged(QtProperty* property, const QVariant& value)
+{
+
+	auto iter = mPropertyMap.find(property);
+	if(iter != mPropertyMap.end())
+	{
+		//int aa = 1;
+
+		if(iter->second.comp != nullptr)
+		{
+			// component	
+			rttr::instance inst(*(iter->second.comp));
+			iter->second.rttr.set_value(inst, value.toFloat());
+		}
+		else
+		{
+			rttr::instance inst(*(iter->second.go));
+			string name = value.toString().toStdString();
+			iter->second.rttr.set_value(inst, string(name));
+			//game object
+		}
+	}
+	QtVariantProperty* varProperty = (QtVariantProperty*)property;
+	if(varProperty)
+	{
+		QVariant goVar =  varProperty->attributeValue("GameObject");
+		QVariant compVar = varProperty->attributeValue("Component");
+		QVariant RttrVar = varProperty->attributeValue("Rttr");
+
+		auto a= goVar.isNull();
+		auto b = compVar.isNull();
+		auto c = RttrVar.isNull();
+		int xx = 1;
+	}
+	auto name = property->propertyName().toStdString().c_str();
+	int a = 1;
 }
 
 QMenuBar* MainWindow::GetMenubar() const
@@ -68,6 +193,15 @@ void MainWindow::CreateHierarchy()
 	addDockWidget(Qt::LeftDockWidgetArea, m_explorerDock);
 
 	m_hierarchyWindow = new HierarchyWindow(m_explorerDock);
+
+	//const auto func = [=]() {
+	//	int row =m_hierarchyWindow->currentIndex().row();
+	//	int col = m_hierarchyWindow->currentIndex().column();
+	//};
+
+	//connect(m_hierarchyWindow, &QTreeView::clicked, func);
+
+	QObject::connect(m_hierarchyWindow, SIGNAL(clicked(const QModelIndex)), this, SLOT(treeViewClickProgress(const QModelIndex)));
 
 
 	m_hierarchyWindow->viewport()->installEventFilter(this);
@@ -111,6 +245,11 @@ void MainWindow::CreateProperties()
 	addDockWidget(Qt::RightDockWidgetArea, m_propertiesDock);
 
 	m_inspectorWindow = new InspectorWindow(this);
+
+	m_pVarManager = new QtVariantPropertyManager(m_inspectorWindow);
+	m_pVarFactory = new QtVariantEditorFactory(m_inspectorWindow);
+	connect(m_pVarManager, &QtVariantPropertyManager::valueChanged, this, &MainWindow::variantPropertyValueChanged);
+	m_inspectorWindow->setFactoryForManager(m_pVarManager, m_pVarFactory);
 	m_inspectorWindow->installEventFilter(this);
 	m_inspectorWindow->setObjectName(tr("propertyBrowser"));
 	m_propertiesDock->setWidget(m_inspectorWindow);
@@ -185,9 +324,12 @@ void MainWindow::CreateItemRecusive(Transform* node, QStandardItem* Item)
 
 		QList<QStandardItem*> itemslst;
 		QStandardItem* childItem = new QStandardItem(childTrans->GetGameObject()->Name());
+		QVariant variant(QVariant::fromValue(static_cast<void*>(childTrans->GetGameObject())));
+		childItem->setData(variant);
+
 		itemslst.append(childItem);
 		Item->appendRow(itemslst);
-
+		
 		CreateItemRecusive(childTrans, childItem);
 	}
 }
@@ -200,44 +342,15 @@ void MainWindow::InitHierarchyContent(SceneGraph* sg)
 	GameObject* node = sg->Root();
 	QStandardItem* rootItem = new QStandardItem(node->Name());
 	itemslst.append(rootItem);
+	QVariant variant(QVariant::fromValue(static_cast<void*>(node)));
+	rootItem->setData(variant);
+
 	model->appendRow(itemslst);
+
 
 	CreateItemRecusive(node->QueryComponent<Transform>(), rootItem);
 
 
-	//model->setHorizontalHeaderLabels(QStringList() << QStringLiteral("序号") << QStringLiteral("名称"));     //设置列头
-	//for (int i = 0; i < 5; i++)
-	//{
-	//	//一级节点，加入mModel
-	//	QList<QStandardItem*> items1;
-	//	QStandardItem* item1 = new QStandardItem(QString::number(i));
-	//	QStandardItem* item2 = new QStandardItem(QStringLiteral("一级节点"));
-	//	items1.append(item1);
-	//	items1.append(item2);
-	//	model->appendRow(items1);
-
-	//	for (int j = 0; j < 5; j++)
-	//	{
-	//		//二级节点,加入第1个一级节点
-	//		QList<QStandardItem*> items2;
-	//		QStandardItem* item3 = new QStandardItem(QString::number(j));
-	//		QStandardItem* item4 = new QStandardItem(QStringLiteral("二级节点"));
-	//		items2.append(item3);
-	//		items2.append(item4);
-	//		item1->appendRow(items2);
-
-	//		for (int k = 0; k < 5; k++)
-	//		{
-	//			//三级节点,加入第1个二级节点
-	//			QList<QStandardItem*> items3;
-	//			QStandardItem* item5 = new QStandardItem(QString::number(k));
-	//			QStandardItem* item6 = new QStandardItem(QStringLiteral("三级节点"));
-	//			items3.append(item5);
-	//			items3.append(item6);
-	//			item3->appendRow(items3);
-	//		}
-	//	}
-	//}
-	//2，给QTreeView应用model
+	//2，set QTreeView model
 	m_hierarchyWindow->setModel(model);
 }

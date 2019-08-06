@@ -53,6 +53,9 @@ namespace codegym::runtime
 
 		vector<Component*> mComponents;
 
+		RTTR_ENABLE()
+		RTTR_REGISTRATION_FRIEND
+
 	};
 
 	template <class T>

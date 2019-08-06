@@ -36,7 +36,10 @@ void Transform::SetParent(Transform* parent)
 	}
 
 	m_parent = parent;
-	m_parent->AddChild(this);
+	if(parent)
+	{
+		m_parent->AddChild(this);
+	}
 }
 
 void Transform::SetPosition(float x, float y, float z)

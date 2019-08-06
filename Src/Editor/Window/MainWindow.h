@@ -3,7 +3,12 @@
 #include <QMainWindow>
 #include "BaseClasses/GameObject.h"
 
+class QtProperty;
 class QStandardItem;
+class QtVariantPropertyManager;
+class QtVariantEditorFactory;
+class QtEnumPropertyManager;
+class QtEnumEditorFactory;
 
 namespace codegym {
 	namespace runtime {
@@ -29,7 +34,10 @@ namespace codegym::editor
 		void SetupLayout();
 		void InitContent(runtime::SceneGraph* sg);
 
-	private:
+	public Q_SLOTS:
+		void treeViewClickProgress(const QModelIndex& index);
+		void variantPropertyValueChanged(QtProperty* property, const QVariant& value);
+	public:
 		void CreateHierarchy();
 		void CreateProperties();
 		void CreateOutput();
@@ -41,5 +49,10 @@ namespace codegym::editor
 		HierarchyWindow* m_hierarchyWindow;
 		InspectorWindow* m_inspectorWindow;
 		QTextBrowser*	 m_outputWindow;
+
+		QtVariantPropertyManager* m_pVarManager;	
+		QtVariantEditorFactory* m_pVarFactory;
+		//QtEnumPropertyManager* m_enumPropertyManager;
+		//QtEnumEditorFactory* m_enumPropertyFactory;
 	};
 }
