@@ -4,13 +4,14 @@
 #include "BaseClasses/Type.h"
 #include "Component.h"
 #include "Logging/LogAssert.h"
+#include "Object.h"
 
 
 namespace codegym::runtime
 {
 	class Component;
 
-	class CG_API GameObject
+	class CG_API GameObject : public Object
 	{
 	public:
 		GameObject();

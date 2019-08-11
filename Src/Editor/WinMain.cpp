@@ -32,17 +32,5 @@ int WinMain(int argc, char **argv)
 	mw.InitContent(&sg);
 	mw.showMaximized();
 
-	
-
-
-
-	//QMainWindow mw;
-
-	//QLabel* label = new QLabel(&mw);
-	//label->setText(std::to_string(et.foo()).c_str());
-	//mw.show();
-	
 	return app.exec();
-	//std::cout << "123123212" << std::endl;
-	//return 0;
 }

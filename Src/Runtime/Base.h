@@ -3,5 +3,7 @@
 
 #include "Prerequisites.h"
 
+#include "Macros/TypeMacro.h"
+
 // memory
 #include "Macros/MemoryMacro.h"

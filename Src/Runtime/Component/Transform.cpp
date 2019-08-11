@@ -53,7 +53,7 @@ void Transform::SetPosition(float x, float y, float z)
 RTTR_REGISTRATION
 {
 	using namespace rttr;
-	registration::class_<Transform>("codegym::runtime::Transform")
+	registration::class_<Transform>("Transform")
 		.property("x", &Transform::m_x)
 		.property("y", &Transform::m_y)
 		.property("z", &Transform::m_z);

@@ -26,7 +26,7 @@ void cMenuManager::Initlize(MainWindow* editorWindow)
 
 	gMenuRoot = sMenuItem::CreateSubmenu(-1, "MenuRoot");
 
-	int priority = std::numeric_limits<int>::min();
+	int priority = numeric_limits<int>::min();
 	gMenuRoot->AddMenuItem(sMenuItem::CreateSubmenu(priority, "File"));
 	gMenuRoot->AddMenuItem(sMenuItem::CreateSubmenu(priority, "Help"));
 }

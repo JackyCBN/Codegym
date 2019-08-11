@@ -2,11 +2,12 @@
 
 #include "Base.h"
 #include "Type.h"
+#include "Object.h"
 
 namespace codegym::runtime
 {
 	class GameObject;
-	class CG_API Component
+	class CG_API Component : public Object
 	{
 		
 	public:

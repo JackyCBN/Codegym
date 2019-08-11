@@ -1,24 +1,23 @@
-#include <rttr/type>
-#include <rttr/registration>
-#include <iostream>
+#include "Base.h"
+#include "BaseClasses/Type.h"
 
 namespace ns_3d
 {
 	class node
 	{
 	public:
-		node(std::string name, node* parent = nullptr)
+		node(string name, node* parent = nullptr)
 		:m_name(name)
 		{
 			
 		}
 		virtual ~node(){}
-		void set_name(const std::string& name)
+		void set_name(const string& name)
 		{
 			m_name = name;
 		}
-		const std::string& get_name() const { return m_name; }
-		std::vector<node*> get_children() const
+		const string& get_name() const { return m_name; }
+		vector<node*> get_children() const
 		{
 			return m_children;
 		}
@@ -26,8 +25,8 @@ namespace ns_3d
 		virtual void render(){}
 
 		node* m_parent;
-		std::string         m_name;
-		std::vector<node*>  m_children;
+		string         m_name;
+		vector<node*>  m_children;
 		RTTR_ENABLE()
 		//RTTR_REGISTRATION_FRIEND
 	};
@@ -39,7 +38,7 @@ RTTR_REGISTRATION
 	using namespace rttr;
 	using namespace ns_3d;
 	registration::class_<node>("ns_3d::node")
-		.constructor<std::string, node*>()
+		.constructor<string, node*>()
 		(
 			policy::ctor::as_std_shared_ptr, // should create an instance of the class as shared_ptr<ns_3d::node>
 			default_arguments(nullptr)       // second argument is optional, so we provide the default value for it

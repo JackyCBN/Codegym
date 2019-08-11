@@ -33,15 +33,13 @@ namespace codegym::editor
 
 		void SetupLayout();
 		void InitContent(runtime::SceneGraph* sg);
-
-	public Q_SLOTS:
+	private Q_SLOTS:
 		void treeViewClickProgress(const QModelIndex& index);
-		void variantPropertyValueChanged(QtProperty* property, const QVariant& value);
+		void tick();
 	public:
 		void CreateHierarchy();
 		void CreateProperties();
 		void CreateOutput();
-		void CreateItemRecusive(runtime::Transform* node, QStandardItem* item);
 
 		void InitHierarchyContent(runtime::SceneGraph* sg);
 
@@ -50,8 +48,7 @@ namespace codegym::editor
 		InspectorWindow* m_inspectorWindow;
 		QTextBrowser*	 m_outputWindow;
 
-		QtVariantPropertyManager* m_pVarManager;	
-		QtVariantEditorFactory* m_pVarFactory;
+
 		//QtEnumPropertyManager* m_enumPropertyManager;
 		//QtEnumEditorFactory* m_enumPropertyFactory;
 	};
