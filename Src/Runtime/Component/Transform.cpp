@@ -53,8 +53,12 @@ void Transform::SetPosition(float x, float y, float z)
 RTTR_REGISTRATION
 {
 	using namespace rttr;
-	registration::class_<Transform>("Transform")
+	//registration::class_<Transform>("Transform")
+	RTTR_BEGIN_CLASS(Transform)
 		.property("x", &Transform::m_x)
 		.property("y", &Transform::m_y)
-		.property("z", &Transform::m_z);
+		.property("z", &Transform::m_z)
+		RTTR_PROPERTY(Test, PF_EDITOR_RW)
+		RTTR_PROPERTY_READONLY(Test, PF_EDITOR_RW)
+	RTTR_END_CLASS
 }

@@ -2,6 +2,7 @@
 #include "Base.h"
 #include "QtPropertyBrowser/qttreepropertybrowser.h"
 #include <rttr/property.h>
+#include "Signal/Signal.h"
 
 class QWidget;
 class QtProperty;
@@ -40,7 +41,7 @@ namespace codegym::editor
 
 		void initlize();
 		void onItemSelectChange(runtime::GameObject* go);
-		void onPropertyChanged(runtime::Object* object, const rttr::property& newVal);
+		void onPropertyChanged(runtime::Object& object, const rttr::property& newVal);
 		
 	private Q_SLOTS:
 		void onValueChanged(QtProperty* property, const QVariant& value);
@@ -52,5 +53,7 @@ namespace codegym::editor
 
 		QtVariantPropertyManager* m_pVarManager;
 		QtVariantEditorFactory* m_pVarFactory;
+
+		runtime::scoped_connection	m_objectPropertyChangeConn;
 	};
 }

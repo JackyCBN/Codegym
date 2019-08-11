@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Base.h"
-#include "BaseClasses/Type.h"
+#include "Type/Type.h"
 #include "Component.h"
 #include "Logging/LogAssert.h"
 #include "Object.h"

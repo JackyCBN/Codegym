@@ -24,6 +24,9 @@ namespace codegym::runtime
 
 		void SetPosition(float x, float y, float z);
 
+		GC_PROPERTY(string, Test, "test");
+		//GC_PROPERTY_READONLY(float, MyTest, 3);
+		private: float m_MyTest = 3; public: float GetMyTest() const { return m_MyTest; };
 	private:
 		float m_x;
 		float m_y;

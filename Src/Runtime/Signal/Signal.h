@@ -3,7 +3,7 @@
 #include "Base.h"
 #include "fwd.h"
 #include "delegate.h"
-
+#include "EventList.h"
 
 
 namespace codegym::runtime {
@@ -32,7 +32,82 @@ class sink;
 template<typename Function>
 class signal;
 
+/**
+ * @brief Connection class.
+ *
+ * Opaque object the aim of which is to allow users to release an already
+ * estabilished connection without having to keep a reference to the signal or
+ * the sink that generated it.
+ */
+class connection {
+	/*! @brief A sink is allowed to create connection objects. */
+	template<typename>
+	friend class sink;
 
+	template<typename>
+	friend class signal;
+
+	connection(delegate<void(void*)> fn, void* ref)
+		: disconnect{ fn }, signal{ ref }
+	{}
+
+public:
+	/*! Default constructor. */
+	connection() = default;
+
+	/*! @brief Default copy constructor. */
+	connection(const connection&) = default;
+
+	/**
+	 * @brief Default move constructor.
+	 * @param other The instance to move from.
+	 */
+	connection(connection&& other)
+		: connection{}
+	{
+		swap(disconnect, other.disconnect);
+		swap(signal, other.signal);
+	}
+
+	/*! @brief Default copy assignment operator. @return This connection. */
+	connection& operator=(const connection&) = default;
+
+	/**
+	 * @brief Default move assignment operator.
+	 * @param other The instance to move from.
+	 * @return This connection.
+	 */
+	connection& operator=(connection&& other) {
+		if (this != &other) {
+			auto tmp{ move(other) };
+			disconnect = tmp.disconnect;
+			signal = tmp.signal;
+		}
+
+		return *this;
+	}
+
+	/**
+	 * @brief Checks whether a connection is properly initialized.
+	 * @return True if the connection is properly initialized, false otherwise.
+	 */
+	explicit operator bool() const CG_NOEXCEPT {
+		return static_cast<bool>(disconnect);
+	}
+
+	/*! @brief Breaks the connection. */
+	void release() {
+		if (disconnect) {
+			disconnect(signal);
+			disconnect.reset();
+		}
+	}
+
+private:
+	delegate<void(void*)> disconnect;
+	void* signal{};
+};
+	
 /**
  * @brief Unmanaged signal handler.
  *
@@ -71,7 +146,7 @@ public:
      * @return Number of listeners currently connected.
      */
     size_type size() const CG_NOEXCEPT {
-        return calls.size();
+        return m_eventList.size();
     }
 
     /**
@@ -79,7 +154,7 @@ public:
      * @return True if the signal has no listeners connected, false otherwise.
      */
     bool empty() const CG_NOEXCEPT {
-        return calls.empty();
+        return m_eventList.empty();
     }
 
     /**
@@ -89,10 +164,11 @@ public:
      *
      * @param args Arguments to use to invoke listeners.
      */
-    void publish(Args... args) const {
-        for(auto pos = calls.size(); pos; --pos) {
-            calls[pos-1](args...);
-        }
+    void publish(Args ... args) {
+
+		m_eventList.travel([&](auto&& element) {
+			return element.first ? void() : element.second(forward<Args>(args)...);
+		});
     }
 
     /**
@@ -110,105 +186,149 @@ public:
      * @param args Arguments to use to invoke listeners.
      */
     template<typename Func>
-    void collect(Func func, Args... args) const {
-        bool stop = false;
+	void collect(Func func, Args... args) const {
 
-        for(auto pos = calls.size(); pos && !stop; --pos) {
-            if constexpr(is_void_v<Ret>) {
-                if constexpr(is_invocable_r_v<bool, Func>) {
-                    calls[pos-1](args...);
-                    stop = func();
-                } else {
-                    calls[pos-1](args...);
-                    func();
-                }
-            } else {
-                if constexpr(is_invocable_r_v<bool, Func, Ret>) {
-                    stop = func(calls[pos-1](args...));
-                } else {
-                    func(calls[pos-1](args...));
-                }
-            }
-        }
-    }
-
+		m_eventList.travel([&](const auto& element)
+		{
+			bool stop = false;
+			if (element.first)
+			{
+				if (!element.first)
+				{
+					if constexpr (is_void_v<Ret>) {
+						if constexpr (is_invocable_r_v<bool, Func>) {
+							element.second(forward<Args>(args)...);
+							stop = func();
+						}
+						else {
+							element.second(forward<Args>(args)...);
+							func();
+						}
+					}
+					else {
+						if constexpr (is_invocable_r_v<bool, Func, Ret>) {
+							stop = func(element.second(forward<Args>(args)...));
+						}
+						else {
+							func(element.second(forward<Args>(args)...));
+						}
+					}
+				}
+			}
+		});
+	}
 private:
-    vector<delegate<Ret(Args...)>> calls;
-};
+	using signal_type = signal<Ret(Args...)>;
+	template<auto Candidate, typename Type>
+	static void release(Type* value_or_instance, void* signal) {
+		sink{ *static_cast<signal_type*>(signal) }.disconnect<Candidate>(value_or_instance);
+	}
 
-
-/**
- * @brief Connection class.
- *
- * Opaque object the aim of which is to allow users to release an already
- * estabilished connection without having to keep a reference to the signal or
- * the sink that generated it.
- */
-class connection {
-    /*! @brief A sink is allowed to create connection objects. */
-    template<typename>
-    friend class sink;
-
-    connection(delegate<void(void *)> fn, void *ref)
-        : disconnect{fn}, signal{ref}
-    {}
+	template<auto Function>
+	static void release(void* signal) {
+		sink{ *static_cast<signal_type*>(signal) }.template disconnect<Function>();
+	}
 
 public:
-    /*! Default constructor. */
-    connection() = default;
 
-    /*! @brief Default copy constructor. */
-    connection(const connection &) = default;
+	/**
+	 * @brief Connects a free function to a signal.
+	 *
+	 * The signal handler performs checks to avoid multiple connections for free
+	 * functions.
+	 *
+	 * @tparam Function A valid free function pointer.
+	 * @return A properly initialized connection object.
+	 */
+	template<auto Function>
+	connection connect() {
+		disconnect<Function>();
+		delegate<void(void*)> conn{};
+		conn.template connect<&release<Function>>();
+		m_eventList.add(delegate<Ret(Args...)>{connect_arg<Function>});
+		return { move(conn), this };
+	}
 
-    /**
-     * @brief Default move constructor.
-     * @param other The instance to move from.
-     */
-    connection(connection &&other)
-        : connection{}
-    {
-        swap(disconnect, other.disconnect);
-        swap(signal, other.signal);
-    }
+	/**
+	 * @brief Connects a member function or a free function with payload to a
+	 * signal.
+	 *
+	 * The signal isn't responsible for the connected object or the payload.
+	 * Users must always guarantee that the lifetime of the instance overcomes
+	 * the one  of the delegate. On the other side, the signal handler performs
+	 * checks to avoid multiple connections for the same function.<br/>
+	 * When used to connect a free function with payload, its signature must be
+	 * such that the instance is the first argument before the ones used to
+	 * define the delegate itself.
+	 *
+	 * @tparam Candidate Member or free function to connect to the signal.
+	 * @tparam Type Type of class or type of payload.
+	 * @param value_or_instance A valid pointer that fits the purpose.
+	 * @return A properly initialized connection object.
+	 */
+	template<auto Candidate, typename Type>
+	connection connect(Type* value_or_instance) {
+		disconnect<Candidate>(value_or_instance);
+		delegate<void(void*)> conn{};
+		conn.template connect<&signal::template release<Candidate, Type>>(value_or_instance);
+		m_eventList.add(delegate<Ret(Args...)>{connect_arg<Candidate>, value_or_instance});
+		return { move(conn), this };
+	}
 
-    /*! @brief Default copy assignment operator. @return This connection. */
-    connection & operator=(const connection &) = default;
+	/**
+	 * @brief Disconnects a free function from a signal.
+	 * @tparam Function A valid free function pointer.
+	 */
+	template<auto Function>
+	void disconnect() {
+		auto& calls = m_eventList;
+		delegate<Ret(Args...)> delegate{};
+		delegate.template connect<Function>();
+		calls.erase([delegate = delegate](auto&& elemnt) {
+			return elemnt.second == delegate;
+		});
+	}
 
-    /**
-     * @brief Default move assignment operator.
-     * @param other The instance to move from.
-     * @return This connection.
-     */
-    connection & operator=(connection &&other) {
-        if(this != &other) {
-            auto tmp{move(other)};
-            disconnect = tmp.disconnect;
-            signal = tmp.signal;
-        }
+	/**
+	 * @brief Disconnects a member function or a free function with payload from
+	 * a signal.
+	 * @tparam Candidate Member or free function to disconnect from the signal.
+	 * @tparam Type Type of class or type of payload.
+	 * @param value_or_instance A valid pointer that fits the purpose.
+	 */
+	template<auto Candidate, typename Type>
+	void disconnect(Type* value_or_instance) {
+		auto& eventList = m_eventList;
+		delegate<Ret(Args...)> delegate{};
+		delegate.template connect<Candidate>(value_or_instance);
 
-        return *this;
-    }
+		eventList.erase([delegate = delegate](auto&& elemnt) {
+			return elemnt.second == delegate;
+		});
+	}
 
-    /**
-     * @brief Checks whether a connection is properly initialized.
-     * @return True if the connection is properly initialized, false otherwise.
-     */
-    explicit operator bool() const CG_NOEXCEPT {
-        return static_cast<bool>(disconnect);
-    }
+	/**
+	 * @brief Disconnects member functions or free functions based on an
+	 * instance or specific payload.
+	 * @param value_or_instance A valid pointer that fits the purpose.
+	 */
+	void disconnect(const void* value_or_instance) {
+		auto& eventList = m_eventList;
+		eventList.erase([value_or_instance](auto&& elemnt) {
+			const auto& delegate = elemnt.second;
+			return value_or_instance == delegate.instance();
+		});
+	}
 
-    /*! @brief Breaks the connection. */
-    void release() {
-        if(disconnect) {
-            disconnect(signal);
-            disconnect.reset();
-        }
-    }
+	/*! @brief Disconnects all the listeners from a signal. */
+	void disconnectAll() {
+		m_eventList.clear();
+	}
 
 private:
-    delegate<void(void *)> disconnect;
-    void *signal{};
+	EventList<delegate<Ret(Args...)>> m_eventList;
 };
+
 
 
 /**
@@ -322,7 +442,7 @@ public:
      * @return True if the sink has no listeners connected, false otherwise.
      */
     bool empty() const CG_NOEXCEPT {
-        return signal->calls.empty();
+        return signal->m_eventList.empty();
     }
 
     /**
@@ -336,11 +456,8 @@ public:
      */
     template<auto Function>
     connection connect() {
-        disconnect<Function>();
-        delegate<void(void *)> conn{};
-        conn.template connect<&release<Function>>();
-        signal->calls.emplace_back(delegate<Ret(Args...)>{connect_arg<Function>});
-        return { move(conn), signal };
+
+		return signal->connect<Function>();
     }
 
     /**
@@ -362,11 +479,7 @@ public:
      */
     template<auto Candidate, typename Type>
     connection connect(Type *value_or_instance) {
-        disconnect<Candidate>(value_or_instance);
-        delegate<void(void *)> conn{};
-        conn.template connect<&sink::release<Candidate, Type>>(value_or_instance);
-        signal->calls.emplace_back(delegate<Ret(Args...)>{connect_arg<Candidate>, value_or_instance});
-        return { move(conn), signal };
+		return signal->connect<Candidate>(value_or_instance);
     }
 
     /**
@@ -375,10 +488,7 @@ public:
      */
     template<auto Function>
     void disconnect() {
-        auto &calls = signal->calls;
-        delegate<Ret(Args...)> delegate{};
-        delegate.template connect<Function>();
-        calls.erase(remove(calls.begin(), calls.end(), move(delegate)), calls.end());
+		return signal->template disconnect<Function>();
     }
 
     /**
@@ -390,10 +500,7 @@ public:
      */
     template<auto Candidate, typename Type>
     void disconnect(Type *value_or_instance) {
-        auto &calls = signal->calls;
-        delegate<Ret(Args...)> delegate{};
-        delegate.template connect<Candidate>(value_or_instance);
-        calls.erase(remove(calls.begin(), calls.end(), move(delegate)), calls.end());
+		return signal->disconnect<Candidate>(value_or_instance);
     }
 
     /**
@@ -402,15 +509,12 @@ public:
      * @param value_or_instance A valid pointer that fits the purpose.
      */
     void disconnect(const void *value_or_instance) {
-        auto &calls = signal->calls;
-        calls.erase(remove_if(calls.begin(), calls.end(), [value_or_instance](const auto &delegate) {
-            return value_or_instance == delegate.instance();
-        }), calls.end());
+		return signal->disconnect(value_or_instance);
     }
 
     /*! @brief Disconnects all the listeners from a signal. */
     void disconnect() {
-        signal->calls.clear();
+        signal->disconnectAll();
     }
 
 private:

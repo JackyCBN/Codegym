@@ -5,7 +5,6 @@ using namespace codegym::runtime;
 
 GET_MANAGER(EventManager)
 GET_MANAGER_PTR(EventManager)
-
 void EventManager::Initlize()
 {
 }

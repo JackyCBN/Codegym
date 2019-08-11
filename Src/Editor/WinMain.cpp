@@ -11,6 +11,7 @@
 #include "BaseClasses/GameObject.h"
 #include "Component/Transform.h"
 #include "Scene/SceneGraph.h"
+#include "Manager/ManagerMgr.h"
 
 using namespace codegym::editor;
 using namespace codegym::runtime;
@@ -19,8 +20,12 @@ int WinMain(int argc, char **argv)
 {
 	ExportTest et;
 
+	auto mgr = make_unique<ManagerMgr>();
+	mgr->Initlize();
 	SceneGraph  sg;
 	sg.Initlize();
+
+	
 
 	QApplication app (argc, argv);
 	MainWindow mw;

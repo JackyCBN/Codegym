@@ -5,7 +5,7 @@ namespace codegym::runtime
 	enum class eManagerType;
 	class BaseManger;
 	
-	class ManagerMgr
+	class CG_API  ManagerMgr
 	{
 	public:
 		void Initlize();

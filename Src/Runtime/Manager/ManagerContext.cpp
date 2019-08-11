@@ -50,9 +50,12 @@ BaseManger& codegym::runtime::GetManagerFromContext(eManagerType type)
 	return *result;
 }
 
-
-
 const ManagerContext& codegym::runtime::GetManagerContext()
 {
 	return gContext;
 }
+
+//const ManagerContext& codegym::runtime::GetManagerContext()
+//{
+//	return gContext;
+//}

@@ -1,22 +1,23 @@
 #pragma once
 #include "Base.h"
-#include "BaseClasses/Type.h"
+#include "Type/Type.h"
 #include "BaseManger.h"
-#include "Signal/Emitter.h"
+#include "Signal/Signal.h"
 
 namespace codegym::runtime
 {
 	class Object;
 	
-	class EventManager : public BaseManger
+	class CG_API EventManager : public BaseManger
 	{
 	public:
 		void Initlize() override;
 		void Deinitlize() override;
 
-		//Emitter<Object*, const rttr::property&> OnObjectPropertyChange;
+		signal<void(Object&, const rttr::property&)> OnObjectPropertyChange;
+		signal<void(int)> OnObjectPropertyChange2;
 	};
 
-	EventManager* GetEventManagerPtr();
-	EventManager& GetEventManager();
+	CG_API EventManager* GetEventManagerPtr();
+	CG_API EventManager& GetEventManager();
 }

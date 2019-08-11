@@ -242,3 +242,9 @@ constexpr auto is_named_type_v = is_named_type<Type>::value;
 #define GC_NAMED_CLASS_MACRO(_1, _2, _3, FUNC, ...) FUNC
 /*! @brief Defines a named type (to use for classes). */
 #define GC_NAMED_CLASS(...) GC_EXPAND(GC_NAMED_CLASS_MACRO(__VA_ARGS__, GC_NAMED_CLASS_WITH_NAMESPACE, GC_NAMED_CLASS_ONLY,)(__VA_ARGS__))
+
+template <typename T>
+using ParameterType = conditional<is_scalar_v<T>, T, add_lvalue_reference_t<add_const_t<T>>>;
+
+template <typename T>
+using ParameterType_t = typename ParameterType<T>::type;

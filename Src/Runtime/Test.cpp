@@ -1,5 +1,5 @@
 #include "Base.h"
-#include "BaseClasses/Type.h"
+#include "Type/Type.h"
 
 namespace ns_3d
 {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Base.h"
-#include "Type.h"
+#include "Type/Type.h"
 #include "Object.h"
 
 namespace codegym::runtime

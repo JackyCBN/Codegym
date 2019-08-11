@@ -2,7 +2,7 @@
 #include "Base.h"
 namespace codegym::runtime
 {
-	class BaseManger
+	class CG_API BaseManger
 	{
 	public:
 		virtual ~BaseManger();

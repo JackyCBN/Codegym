@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Base.h"
+#include "Logging/LogAssert.h"
 
 
 namespace codegym::runtime {
@@ -63,7 +64,7 @@ template<auto>
 struct connect_arg_t {};
 
 
-/*! @brief Constant of type connect_arg_t used to disambiguate calls. */
+/*! @brief Constant of type connect_arg_t used to disambiguate m_eventList. */
 template<auto Func>
 constexpr connect_arg_t<Func> connect_arg{};
 
@@ -223,7 +224,7 @@ public:
      * @return The value returned by the underlying function.
      */
     Ret operator()(Args... args) const {
-        ENTT_ASSERT(fn);
+        DebugAssert(fn);
         return fn(data, forward_as_tuple(forward<Args>(args)...));
     }
 

@@ -2,6 +2,7 @@
 #include <QMenuBar>
 #include "Window/MainWindow.h"
 #include <QtPropertyBrowser/QtVariantPropertyManager>
+#include "Manager/EventManager.h"
 using namespace codegym::runtime;
 using namespace codegym::editor;
 
@@ -23,6 +24,9 @@ void InspectorWindow::initlize()
 	setObjectName(tr("propertyBrowser"));
 	setFocusPolicy(Qt::StrongFocus);
 	setAcceptDrops(true);
+
+	m_objectPropertyChangeConn = GetEventManager().OnObjectPropertyChange.connect<&InspectorWindow::onPropertyChanged>(this);
+	m_objectPropertyChangeConn.release();
 }
 
 void InspectorWindow::onItemSelectChange(GameObject* go)
@@ -68,14 +72,48 @@ void InspectorWindow::onItemSelectChange(GameObject* go)
 				compGroupItem->addSubProperty(copmItem);
 				mPropertyMap.insert(make_pair(copmItem, ProptertyInfo{ &comp, prop }));
 			}
+			else if (prop.get_type() == TypeOf<string>() )
+			{
+				QtVariantProperty* copmItem = m_pVarManager->addProperty(QVariant::String, prop.get_name().begin());
+				auto val = prop.get_value(comp);
+				copmItem->setValue(val.to_string().c_str());
+
+				QVariant compVariant(QVariant::fromValue(static_cast<void*>(&comp)));
+				copmItem->setAttribute("Component", compVariant);
+
+				QVariant rttrVariant(prop.get_name().begin());
+				copmItem->setAttribute("Rttr", rttrVariant);
+
+				compGroupItem->addSubProperty(copmItem);
+				mPropertyMap.insert(make_pair(copmItem, ProptertyInfo{ &comp, prop }));
+			}
 		}
 		addProperty(compGroupItem);
 	}
 }
 
-void InspectorWindow::onPropertyChanged(Object* object, const rttr::property& newVal)
+void InspectorWindow::onPropertyChanged(Object& object, const rttr::property& newVal)
 {
-	
+	if(newVal.get_name() == string("Test"))
+	{
+		bool bOk = false;
+		auto f = newVal.get_value(object).to_string(&bOk);
+		if (f =="test")
+		{
+			newVal.set_value(object, string("testChanged"));
+		}
+	}
+	//if( newVal.get_type() == rttr::type::get<float>())
+	//{
+	//	bool bOk = false;
+	//	float f = newVal.get_value(object).to_float(&bOk);
+	//	if(f<30)
+	//	{
+	//		rttr::property newProp = newVal;
+	//		newVal.set_value(object, f * 2.f);
+	//	}
+	//	
+	//}
 }
 
 void InspectorWindow::onValueChanged(QtProperty* property, const QVariant& value)
