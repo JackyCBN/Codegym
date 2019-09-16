@@ -14,5 +14,6 @@
 #include <type_traits>
 #include <atomic>
 #include <cstdint>
+#include <sstream>
 
 using namespace std;
