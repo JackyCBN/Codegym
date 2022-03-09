@@ -1,10 +1,9 @@
-
-[submodule "Lumos/External/cereal"]
-	path = Lumos/External/cereal
+[submodule "Externals/rttr"]
+	path = Externals/rttr
+	url = https://github.com/rttrorg/rttr
+[submodule "Externals/cereal"]
+	path = Externals/cereal
 	url = https://github.com//USCiLab/cereal
-[submodule "Lumos/External/Tracy"]
-	path = Lumos/External/Tracy
-	url = https://github.com/wolfpld/tracy
-[submodule "Lumos/External/imgui"]
-	path = Lumos/External/imgui
-	url = https://github.com/jmorton06/imgui
+[submodule "Externals/imgui"]
+	path = Externals/imgui
+	url = https://github.com/ocornut/imgui

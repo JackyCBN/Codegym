@@ -1,0 +1,5 @@
+/build*
+/.vscode
+/.vs/
+/cpm_modules
+/bin/
