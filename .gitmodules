@@ -1,0 +1,10 @@
+
+[submodule "Lumos/External/cereal"]
+	path = Lumos/External/cereal
+	url = https://github.com//USCiLab/cereal
+[submodule "Lumos/External/Tracy"]
+	path = Lumos/External/Tracy
+	url = https://github.com/wolfpld/tracy
+[submodule "Lumos/External/imgui"]
+	path = Lumos/External/imgui
+	url = https://github.com/jmorton06/imgui
