@@ -33,3 +33,7 @@ add_subdirectory(Src)
 
 # Always keep it last: CPack definitions file
 include(CodegymDist)
+
+
+include(Externals/rttr)
+target_link_libraries(Runtime RTTR::Core)

@@ -29,5 +29,3 @@ target_include_directories(Runtime PUBLIC
 							   $<BUILD_INTERFACE:${ConfigurationDirectory}>
                                $<INSTALL_INTERFACE:include>)
 							   
-include(rttr)
-target_link_libraries(Runtime RTTR::Core)

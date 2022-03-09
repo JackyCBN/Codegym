@@ -235,9 +235,6 @@ Qt5_DIR:PATH=Qt5_DIR-NOTFOUND
 //Value Computed by CMake
 Runtime_BINARY_DIR:STATIC=H:/Code/Engine/GameEngineProject/Codegym/build/Src/Runtime
 
-//Dependencies for the target
-Runtime_LIB_DEPENDS:STATIC=general;RTTR::Core;
-
 //Value Computed by CMake
 Runtime_SOURCE_DIR:STATIC=H:/Code/Engine/GameEngineProject/Codegym/Src/Runtime
 
