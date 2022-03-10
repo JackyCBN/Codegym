@@ -5,6 +5,7 @@ project("Codegym" VERSION 1.0)
 # For debug libs and exes, add "d" postfix
 set(CodeGym_DEBUG_POSTFIX "_d" CACHE STRING "Set debug library postfix")
 
+set(EXTERNALS_DIR ${CMAKE_SOURCE_DIR}/Externals)
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY   ${CMAKE_BINARY_DIR} CACHE PATH "Directory where .exe and .dll files are dumped." FORCE)
@@ -20,6 +21,10 @@ endif()
 #utility_source
 include(utility)
 
+include(cmake/CPM.cmake)
+
+add_subdirectory(Externals)
+
 # macros
 include(CodegymMacros)
 
@@ -33,7 +38,3 @@ add_subdirectory(Src)
 
 # Always keep it last: CPack definitions file
 include(CodegymDist)
-
-
-include(Externals/rttr)
-target_link_libraries(Runtime RTTR::Core)

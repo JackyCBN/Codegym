@@ -1,7 +1,9 @@
-set(CPM_DOWNLOAD_VERSION 0.32.0)
+set(CPM_DOWNLOAD_VERSION 0.35.0)
 
-# share cache between projects
-set(CPM_SOURCE_CACHE "${CMAKE_CURRENT_LIST_DIR}/../cpm_modules")
+# share cache between projects.
+# My Settings
+set(CPM_SOURCE_CACHE "${CMAKE_CURRENT_LIST_DIR}/cpm_modules")
+#set(FETCHCONTENT_BASE_DIR ${EXTERNALS_DIR} CACHE  PATH "FETCHCONTENT_BASE_DIR" )
 
 if(CPM_SOURCE_CACHE)
   # Expand relative path. This is important if the provided path contains a tilde (~)
