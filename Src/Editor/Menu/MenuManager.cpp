@@ -1,10 +1,6 @@
 #include "MenuManager.h"
 #include "MenuItem.h"
 #include <cassert>
-#include <QMenuBar>
-#include <QMenu>
-#include <QAction>
-#include "Window/MainWindow.h"
 
 using namespace codegym::editor;
 
@@ -14,22 +10,22 @@ namespace
 
 	const char MENU_SEPERATOR = '/';
 
-	MainWindow* gEditorWindow = nullptr;
+	//MainWindow* gEditorWindow = nullptr;
 }
 
 
 set<const sMenuItem*> cMenuManager::m_ExistingMenuItems;
-
-void cMenuManager::Initlize(MainWindow* editorWindow)
-{
-	gEditorWindow = editorWindow;
-
-	gMenuRoot = sMenuItem::CreateSubmenu(-1, "MenuRoot");
-
-	int priority = numeric_limits<int>::min();
-	gMenuRoot->AddMenuItem(sMenuItem::CreateSubmenu(priority, "File"));
-	gMenuRoot->AddMenuItem(sMenuItem::CreateSubmenu(priority, "Help"));
-}
+//
+//void cMenuManager::Initlize(MainWindow* editorWindow)
+//{
+//	gEditorWindow = editorWindow;
+//
+//	gMenuRoot = sMenuItem::CreateSubmenu(-1, "MenuRoot");
+//
+//	int priority = numeric_limits<int>::min();
+//	gMenuRoot->AddMenuItem(sMenuItem::CreateSubmenu(priority, "File"));
+//	gMenuRoot->AddMenuItem(sMenuItem::CreateSubmenu(priority, "Help"));
+//}
 
 sMenuItem* cMenuManager::GetRootMenu()
 {
@@ -182,21 +178,21 @@ bool cMenuManager::SeparateMenuPath(const string& menuPath, string& menuName, st
 
 	return sep != nullptr;
 }
-
-void UpdateEnabled(QMenu* menu)
-{
-	foreach(QAction * action, menu->actions())
-	{
-		if (!action->isSeparator() && !action->menu())
-		{
-			sMenuItem* menuItem = static_cast<sMenuItem*>(action->data().value<void*>());
-			if (cMenuManager::MenuItemExists(menuItem))
-			{
-				action->setEnabled(menuItem->Enabled());
-			}			
-		}
-	}
-}
+//
+//void UpdateEnabled(QMenu* menu)
+//{
+//	foreach(QAction * action, menu->actions())
+//	{
+//		if (!action->isSeparator() && !action->menu())
+//		{
+//			sMenuItem* menuItem = static_cast<sMenuItem*>(action->data().value<void*>());
+//			if (cMenuManager::MenuItemExists(menuItem))
+//			{
+//				action->setEnabled(menuItem->Enabled());
+//			}			
+//		}
+//	}
+//}
 
 static void RemoveEmptyParentMenus(Menu& menu)
 {
@@ -240,153 +236,153 @@ void RemoveEmptyParentMenus(sMenuItem* submenu)
 		}
 	}
 }
-
-void UpdateMenusRecusive(QMenu* menu, sMenuItem* submenu)
-{
-	vector<MenuInterface*> interfaces;
-	submenu->CollectInterfaces(interfaces);
-
-	bool needUpdate = false;
-	for (auto& oneItem : interfaces)
-	{
-		needUpdate |= oneItem->Update();
-	}
-
-	if(needUpdate)
-	{
-		RemoveEmptyParentMenus(submenu);
-		menu->clear();
-		cMenuManager::RebuildOsMenusRecusive(menu, submenu);
-	}
-}
-
-void UpdateMenus(QMenu* menu)
-{
-	const auto& actions = menu->actions();
-
-	bool menuEmpty = actions.empty();
-	if(!actions.isEmpty())
-	{
-		const auto& action = actions[0];
-		sMenuItem* menuItem = static_cast<sMenuItem*>(action->data().value<void*>());
-		if (cMenuManager::MenuItemExists(menuItem))
-		{
-			UpdateMenusRecusive(menu, menuItem->m_parent);
-		}
-
-		menuEmpty = menu->actions().empty();
-	}
-
-	if(menuEmpty)
-	{
-		const auto parent = menu->parent();
-		if(parent)
-		{
-			QAction* menuToBeRemoved = menu->menuAction();
-			if(parent!=gEditorWindow->GetMenubar())
-			{
-				static_cast<QMenu*>(parent)->removeAction(menuToBeRemoved);
-			}
-			else
-			{
-				gEditorWindow->GetMenubar()->removeAction(menuToBeRemoved);
-			}
-		}
-	}
-}
-
-void AboutToShowMenu(QMenu* menu)
-{
-	UpdateMenus(menu);
-	UpdateEnabled(menu);
-}
-
-
-void cMenuManager::RebuildOsMenus()
-{
-	gEditorWindow->GetMenubar()->clear();
-	RebuildOsMenusRecusive(gEditorWindow->GetMenubar(), gMenuRoot);
-}
-
-
-void cMenuManager::DoAddSubMenu(QWidget* parent, QMenu* menu)
-{
-	if(QMenuBar * parentMenuBar = qobject_cast<QMenuBar*>(parent))
-	{
-		parentMenuBar->addMenu(menu);
-	}
-	else if(QMenu * parentMenu = qobject_cast<QMenu*>(parent))
-	{
-		parentMenu->addMenu(menu);
-	}
-}
-
-QMenu* cMenuManager::AddSubMenu(QWidget* parent, sMenuItem* menuItem)
-{
-	auto menu = new QMenu(menuItem->m_name.c_str(), parent);
-
-	DoAddSubMenu(parent, menu);
-	const auto func = [=]() {
-		AboutToShowMenu(menu);
-	};
-	gEditorWindow->connect(menu, &QMenu::aboutToShow, func);
-
-	return menu;
-}
-
-void cMenuManager::DoAddAction(QWidget* parent, QAction* action)
-{
-	if (QMenuBar * menuBar = qobject_cast<QMenuBar*>(parent))
-	{
-		menuBar->addAction(action);
-	}
-	else if (QMenu * parentMenu = qobject_cast<QMenu*>(parent))
-	{
-		parentMenu->addAction(action);
-	}
-}
-
-QAction* cMenuManager::AddAction(QWidget* parent, sMenuItem* menuItem)
-{
-	QAction* action = new QAction(menuItem->m_name.c_str(), parent);
-	QVariant variant(QVariant::fromValue(static_cast<void*>(menuItem)));
-	action->setData(variant);
-	DoAddAction(parent, action);
-	const auto func = [=]() {
-		(void)menuItem->Execute();
-	};
-
-	gEditorWindow->connect(action, &QAction::triggered, func);
-
-	return action;
-}
-
-void cMenuManager::RebuildOsMenusRecusive(QWidget* parent, const sMenuItem* parentItem)
-{
-	Menu* submenu = parentItem->m_submenu;
-
-	int position = -1;
-	for (int i=0; i!=submenu->size(); ++i)
-	{
-		sMenuItem* menuItem = (*submenu)[i];
-		if(menuItem->m_position != -1 && menuItem->m_position/10 > position/10)
-		{
-			if (QMenu * parentMenu = qobject_cast<QMenu*>(parent))
-			{
-				parentMenu->addSeparator();
-			}
-		}
-		position = menuItem->m_position;
-
-		if (menuItem->IsSubmenu())
-		{
-			QMenu* menu =	AddSubMenu(parent, menuItem);
-			RebuildOsMenusRecusive(menu, menuItem);
-		}
-		else
-		{
-			AddAction(parent, menuItem);
-		}
-	}
-
-}
+//
+//void UpdateMenusRecusive(QMenu* menu, sMenuItem* submenu)
+//{
+//	vector<MenuInterface*> interfaces;
+//	submenu->CollectInterfaces(interfaces);
+//
+//	bool needUpdate = false;
+//	for (auto& oneItem : interfaces)
+//	{
+//		needUpdate |= oneItem->Update();
+//	}
+//
+//	if(needUpdate)
+//	{
+//		RemoveEmptyParentMenus(submenu);
+//		menu->clear();
+//		cMenuManager::RebuildOsMenusRecusive(menu, submenu);
+//	}
+//}
+//
+//void UpdateMenus(QMenu* menu)
+//{
+//	const auto& actions = menu->actions();
+//
+//	bool menuEmpty = actions.empty();
+//	if(!actions.isEmpty())
+//	{
+//		const auto& action = actions[0];
+//		sMenuItem* menuItem = static_cast<sMenuItem*>(action->data().value<void*>());
+//		if (cMenuManager::MenuItemExists(menuItem))
+//		{
+//			UpdateMenusRecusive(menu, menuItem->m_parent);
+//		}
+//
+//		menuEmpty = menu->actions().empty();
+//	}
+//
+//	if(menuEmpty)
+//	{
+//		const auto parent = menu->parent();
+//		if(parent)
+//		{
+//			QAction* menuToBeRemoved = menu->menuAction();
+//			if(parent!=gEditorWindow->GetMenubar())
+//			{
+//				static_cast<QMenu*>(parent)->removeAction(menuToBeRemoved);
+//			}
+//			else
+//			{
+//				gEditorWindow->GetMenubar()->removeAction(menuToBeRemoved);
+//			}
+//		}
+//	}
+//}
+//
+//void AboutToShowMenu(QMenu* menu)
+//{
+//	UpdateMenus(menu);
+//	UpdateEnabled(menu);
+//}
+//
+//
+//void cMenuManager::RebuildOsMenus()
+//{
+//	gEditorWindow->GetMenubar()->clear();
+//	RebuildOsMenusRecusive(gEditorWindow->GetMenubar(), gMenuRoot);
+//}
+//
+//
+//void cMenuManager::DoAddSubMenu(QWidget* parent, QMenu* menu)
+//{
+//	if(QMenuBar * parentMenuBar = qobject_cast<QMenuBar*>(parent))
+//	{
+//		parentMenuBar->addMenu(menu);
+//	}
+//	else if(QMenu * parentMenu = qobject_cast<QMenu*>(parent))
+//	{
+//		parentMenu->addMenu(menu);
+//	}
+//}
+//
+//QMenu* cMenuManager::AddSubMenu(QWidget* parent, sMenuItem* menuItem)
+//{
+//	auto menu = new QMenu(menuItem->m_name.c_str(), parent);
+//
+//	DoAddSubMenu(parent, menu);
+//	const auto func = [=]() {
+//		AboutToShowMenu(menu);
+//	};
+//	gEditorWindow->connect(menu, &QMenu::aboutToShow, func);
+//
+//	return menu;
+//}
+//
+//void cMenuManager::DoAddAction(QWidget* parent, QAction* action)
+//{
+//	if (QMenuBar * menuBar = qobject_cast<QMenuBar*>(parent))
+//	{
+//		menuBar->addAction(action);
+//	}
+//	else if (QMenu * parentMenu = qobject_cast<QMenu*>(parent))
+//	{
+//		parentMenu->addAction(action);
+//	}
+//}
+//
+//QAction* cMenuManager::AddAction(QWidget* parent, sMenuItem* menuItem)
+//{
+//	QAction* action = new QAction(menuItem->m_name.c_str(), parent);
+//	QVariant variant(QVariant::fromValue(static_cast<void*>(menuItem)));
+//	action->setData(variant);
+//	DoAddAction(parent, action);
+//	const auto func = [=]() {
+//		(void)menuItem->Execute();
+//	};
+//
+//	gEditorWindow->connect(action, &QAction::triggered, func);
+//
+//	return action;
+//}
+//
+//void cMenuManager::RebuildOsMenusRecusive(QWidget* parent, const sMenuItem* parentItem)
+//{
+//	Menu* submenu = parentItem->m_submenu;
+//
+//	int position = -1;
+//	for (int i=0; i!=submenu->size(); ++i)
+//	{
+//		sMenuItem* menuItem = (*submenu)[i];
+//		if(menuItem->m_position != -1 && menuItem->m_position/10 > position/10)
+//		{
+//			if (QMenu * parentMenu = qobject_cast<QMenu*>(parent))
+//			{
+//				parentMenu->addSeparator();
+//			}
+//		}
+//		position = menuItem->m_position;
+//
+//		if (menuItem->IsSubmenu())
+//		{
+//			QMenu* menu =	AddSubMenu(parent, menuItem);
+//			RebuildOsMenusRecusive(menu, menuItem);
+//		}
+//		else
+//		{
+//			AddAction(parent, menuItem);
+//		}
+//	}
+//
+//}

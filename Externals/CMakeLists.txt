@@ -38,9 +38,11 @@ CPMAddPackage(
 
 CPMAddPackage("gh:SFML/SFML#2.5.1")
 CPMAddPackage("gh:ocornut/imgui#docking")
-CPMAddPackage(
+
+#[[ CPMAddPackage(
     GITHUB_REPOSITORY "eliasdaler/imgui-sfml"
     VERSION "2.5"
     OPTIONS "IMGUI_DIR ${imgui_SOURCE_DIR}"
 )
 add_compile_definitions(IMGUI_DISABLE_DEMO_WINDOWS) # imgui-sfml doesn't compile demo by default
+]]

@@ -1,6 +1,5 @@
 #pragma once
 #include "Base.h"
-#include <qmenu.h>
 
 class QWidget;
 
@@ -10,13 +9,13 @@ namespace codegym::editor
 	enum class eExecutionCause;
 	struct sMenuItem;
 	class MenuInterface;
-	class MainWindow;
+	//class MainWindow;
 	using Menu = vector<sMenuItem*>;
 
 	class cMenuManager
 	{
 	public:
-		static void				Initlize(MainWindow* editorWindow);
+		//static void			Initlize(MainWindow* editorWindow);
 		static sMenuItem*		GetRootMenu();
 
 		// GET
@@ -53,10 +52,10 @@ namespace codegym::editor
 		static void				RebuildOsMenusRecusive(QWidget* parent, const sMenuItem* menuItem);
 	private:
 		static bool				SeparateMenuPath(const string& menuPath, string& menuName,  string& subMenuPath);
-		static QMenu*			AddSubMenu(QWidget* parent, sMenuItem* menuItem);
-		static void				DoAddSubMenu(QWidget* parent, QMenu* menu);
-		static QAction*			AddAction(QWidget* parent, sMenuItem* menuItem);
-		static void				DoAddAction(QWidget* parent, QAction* action);
+		//static QMenu*			AddSubMenu(QWidget* parent, sMenuItem* menuItem);
+		//static void				DoAddSubMenu(QWidget* parent, QMenu* menu);
+		//static QAction*			AddAction(QWidget* parent, sMenuItem* menuItem);
+		//static void				DoAddAction(QWidget* parent, QAction* action);
 
 
 		static set<const sMenuItem*> m_ExistingMenuItems;

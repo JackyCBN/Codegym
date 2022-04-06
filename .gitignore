@@ -4,3 +4,4 @@
 /cpm_modules
 /bin/
 .DS_Store
+Externals/cpm_modules*

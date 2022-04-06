@@ -1,11 +1,7 @@
-#include <QApplication>
-#include <QMainWindow>
-#include <QLabel>
 #include <rttr/type>
 #include <rttr/registration>
 #include <iostream>
 #include "Runtime/ExportTest.h"
-#include "Window/MainWindow.h"
 #include "EditorHelper.h"
 #include "Menu/MenuManager.h"
 #include "BaseClasses/GameObject.h"
@@ -27,7 +23,7 @@ int WinMain(int argc, char **argv)
 
 	
 
-	QApplication app (argc, argv);
+	/*QApplication app (argc, argv);
 	MainWindow mw;
 	
 	cMenuManager::Initlize(&mw);
@@ -37,5 +33,6 @@ int WinMain(int argc, char **argv)
 	mw.InitContent(&sg);
 	mw.showMaximized();
 
-	return app.exec();
+	return app.exec();*/
+        return 0;
 }
