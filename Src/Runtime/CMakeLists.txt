@@ -24,6 +24,9 @@ target_compile_definitions(Runtime PUBLIC CG_DLL)
 #target_include_directories(Runtime PUBLIC ${rttr_SOURCE_DIR}/..)
 #add_library(reflection INTERFACE)
 target_link_libraries(Runtime PUBLIC rttr_core_lib)
+target_link_libraries(Runtime PUBLIC glfw)
+find_package(OpenGL REQUIRED)
+target_link_libraries(Runtime PUBLIC ${OPENGL_LIBRARIES})
 
 target_include_directories(Runtime PUBLIC
                                $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../>

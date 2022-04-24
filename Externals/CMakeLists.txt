@@ -38,7 +38,15 @@ CPMAddPackage(
 
 CPMAddPackage("gh:SFML/SFML#2.5.1")
 CPMAddPackage("gh:ocornut/imgui#docking")
-
+CPMAddPackage(
+        NAME GLFW
+        GITHUB_REPOSITORY glfw/glfw
+        GIT_TAG master
+        OPTIONS
+          "GLFW_BUILD_TESTS OFF"
+          "GLFW_BUILD_EXAMPLES OFF"
+          "GLFW_BULID_DOCS OFF"
+)
 #[[ CPMAddPackage(
     GITHUB_REPOSITORY "eliasdaler/imgui-sfml"
     VERSION "2.5"
