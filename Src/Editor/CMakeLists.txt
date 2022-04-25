@@ -19,7 +19,7 @@ set_target_properties (Editor PROPERTIES DEBUG_POSTFIX ${CodeGym_DEBUG_POSTFIX})
 target_include_directories(Editor PUBLIC
                                $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../>
                                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
-							   $<BUILD_INTERFACE:${ConfigurationDirectory}>
+				   $<BUILD_INTERFACE:${ConfigurationDirectory}>
                                $<INSTALL_INTERFACE:include>)
 
 

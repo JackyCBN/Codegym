@@ -8,9 +8,9 @@
 #include "Component/Transform.h"
 #include "Scene/SceneGraph.h"
 #include "Manager/ManagerMgr.h"
-//#include "imgui.h"
-//#include "imgui_impl_glfw.h"
-//#include "imgui_impl_opengl3.h"
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #  include <GLES2/gl2.h>
 #endif
@@ -87,7 +87,7 @@ int WinMain(int argc, char **argv)
         if (window == NULL) return 1;
         glfwMakeContextCurrent(window);
         glfwSwapInterval(1);  // Enable vsync
-        /*
+
         // Setup Dear ImGui context
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -124,13 +124,11 @@ int WinMain(int argc, char **argv)
         // io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
         // ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f,
         // NULL, io.Fonts->GetGlyphRangesJapanese()); IM_ASSERT(font != NULL);
-        */
+
         // Our state
         bool show_demo_window = true;
         bool show_another_window = false;
-        //ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-        const struct {
-          float x,y,z,w; } clear_color = {0.45f, 0.55f, 0.60f, 1.00f};
+        ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
         // Main loop
         while (!glfwWindowShouldClose(window)) {
@@ -144,16 +142,16 @@ int WinMain(int argc, char **argv)
           // always pass all inputs to dear imgui, and hide them from your application based on
           // those two flags.
           glfwPollEvents();
-          /*
+
           // Start the Dear ImGui frame
           ImGui_ImplOpenGL3_NewFrame();
           ImGui_ImplGlfw_NewFrame();
           ImGui::NewFrame();
-          
+
           // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You
           // can browse its code to learn more about Dear ImGui!).
           if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
-          
+
           // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a
           // named window.
           {
@@ -195,24 +193,24 @@ int WinMain(int argc, char **argv)
             if (ImGui::Button("Close Me")) show_another_window = false;
             ImGui::End();
           }
-          
+
           // Rendering
-          ImGui::Render();*/
+          ImGui::Render();
           int display_w, display_h;
           glfwGetFramebufferSize(window, &display_w, &display_h);
           glViewport(0, 0, display_w, display_h);
           glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w,
                        clear_color.z * clear_color.w, clear_color.w);
           glClear(GL_COLOR_BUFFER_BIT);
-          //ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+          ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
           glfwSwapBuffers(window);
         }
 
         // Cleanup
-        //ImGui_ImplOpenGL3_Shutdown();
-        //ImGui_ImplGlfw_Shutdown();
-        //ImGui::DestroyContext();
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
 
         glfwDestroyWindow(window);
         glfwTerminate();

@@ -36,8 +36,8 @@ CPMAddPackage(
   OPTIONS "SKIP_PORTABILITY_TEST ON" "JUST_INSTALL_CEREAL ON"
 )
 
-CPMAddPackage("gh:SFML/SFML#2.5.1")
-CPMAddPackage("gh:ocornut/imgui#docking")
+#CPMAddPackage("gh:SFML/SFML#2.5.1")
+#CPMAddPackage("gh:ocornut/imgui#docking")
 CPMAddPackage(
         NAME GLFW
         GITHUB_REPOSITORY glfw/glfw
@@ -47,6 +47,10 @@ CPMAddPackage(
           "GLFW_BUILD_EXAMPLES OFF"
           "GLFW_BULID_DOCS OFF"
 )
+
+add_subdirectory(imgui)
+
+
 #[[ CPMAddPackage(
     GITHUB_REPOSITORY "eliasdaler/imgui-sfml"
     VERSION "2.5"
