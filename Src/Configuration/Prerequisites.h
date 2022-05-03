@@ -24,10 +24,13 @@ namespace CodeGym
 /////////////////////////////////////////////////////////////////////////////////////////
 #if defined( __WIN32__ ) || defined( _WIN32 )
 #   define CG_PLATFORM CG_PLATFORM_WINDOWS
+#   define CG_WINDOWS_DEVELOP
 #elif defined( __APPLE_CC__)
 #   define CG_PLATFORM CG_PLATFORM_APPLE
+#   define CG_APPLE_DEVELOP
 #else
 #   define CG_PLATFORM CG_PLATFORM_LINUX
+#   define CG_LINUX_DEVELOP
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////

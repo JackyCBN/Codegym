@@ -16,6 +16,9 @@
 #endif
 #include <GLFW/glfw3.h>  // Will drag system OpenGL headers
 
+#include "Core/OS/Window.h"
+#include "Platform/GLFW/GLFWWindow.h"
+
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of
 // testing and compatibility with old VS compilers. To link with VS2010-era libraries, VS2015+
 // requires linking with legacy_stdio_definitions.lib, which we do using this pragma. Your own
@@ -55,38 +58,15 @@ int WinMain(int argc, char **argv)
 
 	return app.exec();*/
         // Setup window
-        glfwSetErrorCallback(glfw_error_callback);
-        if (!glfwInit()) return 1;
 
-          // Decide GL+GLSL versions
-#if defined(IMGUI_IMPL_OPENGL_ES2)
-        // GL ES 2.0 + GLSL 100
-        const char* glsl_version = "#version 100";
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-#elif defined(__APPLE__)
-        // GL 3.2 + GLSL 150
-        const char* glsl_version = "#version 150";
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
-#else
-        // GL 3.0 + GLSL 130
-        const char* glsl_version = "#version 130";
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-        // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-        // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
-#endif
 
-        // Create window with graphics context
-        GLFWwindow* window
-            = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
-        if (window == NULL) return 1;
-        glfwMakeContextCurrent(window);
-        glfwSwapInterval(1);  // Enable vsync
+        WindowDesc windowDesc;
+        std::unique_ptr<Window> cgWindow(cgGLFWWindow::Create(windowDesc));
+        cgWindow->SetWindowTitle("Dear ImGui GLFW + OpenGL3 example");
+        GLFWwindow* window = (GLFWwindow*)(cgWindow->GetHandle());
+
+      //  glfwMakeContextCurrent(window);
+        //glfwSwapInterval(1);  // Enable vsync
 
         // Setup Dear ImGui context
         IMGUI_CHECKVERSION();
@@ -99,7 +79,7 @@ int WinMain(int argc, char **argv)
         // Setup Dear ImGui style
         ImGui::StyleColorsDark();
         // ImGui::StyleColorsClassic();
-
+        const char* glsl_version = "#version 150";
         // Setup Platform/Renderer backends
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init(glsl_version);
@@ -131,7 +111,8 @@ int WinMain(int argc, char **argv)
         ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
         // Main loop
-        while (!glfwWindowShouldClose(window)) {
+       // while (!glfwWindowShouldClose(window)) {
+        while (!cgWindow->GetExit()) {
           // Poll and handle events (inputs, window resize, etc.)
           // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear
           // imgui wants to use your inputs.
@@ -141,7 +122,7 @@ int WinMain(int argc, char **argv)
           // application, or clear/overwrite your copy of the keyboard data. Generally you may
           // always pass all inputs to dear imgui, and hide them from your application based on
           // those two flags.
-          glfwPollEvents();
+          cgWindow->ProcessInput();
 
           // Start the Dear ImGui frame
           ImGui_ImplOpenGL3_NewFrame();
@@ -212,7 +193,7 @@ int WinMain(int argc, char **argv)
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
 
-        glfwDestroyWindow(window);
-        glfwTerminate();
+      //  glfwDestroyWindow(window);
+      //  glfwTerminate();
         return 0;
 }

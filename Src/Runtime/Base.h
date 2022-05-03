@@ -13,3 +13,5 @@
 #include "Macros/PropertyMacro.h"
 
 #include "Type/TypeTraits.h"
+
+#define BIT(x) (1 << x)
