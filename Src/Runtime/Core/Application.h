@@ -2,7 +2,9 @@
 #include "Base.h"
 
 namespace codegym::runtime {
-    class Window;
+  class TimeStep;
+  class ImGuiManager;
+  class Window;
     struct WindowDesc;
     class Event;
     class WindowCloseEvent;
@@ -23,7 +25,7 @@ namespace codegym::runtime {
         virtual void Init();
         virtual void OnEvent(Event& e);
         virtual void OnRender();
-        virtual void OnUpdate();
+        virtual void OnUpdate(const TimeStep& dt);
         
 
         Window* GetWindow() const
@@ -49,6 +51,7 @@ namespace codegym::runtime {
         bool OnWindowClose(WindowCloseEvent& e);
         bool OnWindowResize(WindowResizeEvent& e);
         std::unique_ptr<Window> m_Window;
+        std::unique_ptr<ImGuiManager> m_imguiManager;
         
         static Application* s_Instance;
         
