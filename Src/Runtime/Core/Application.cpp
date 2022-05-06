@@ -5,10 +5,12 @@
 
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
+#include "Events/ApplicationEvent.h"
 #include "GLFW/glfw3.h"
 #include "OS/Window.h"
 
 #include "Logging/LogAssert.h"
+#include "OS/Input.h"
 #include "Platform/GLFW/GLFWWindow.h"
 #include "Platform/GLFW/GLFWWindow.h"
 
@@ -34,7 +36,7 @@ namespace codegym::runtime {
       m_Window.reset(cgGLFWWindow::Create(windowDesc));
       m_Window->SetWindowTitle("Dear ImGui GLFW + OpenGL3 example");
 
-
+      m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
       
 
       //  glfwMakeContextCurrent(window);
@@ -147,17 +149,38 @@ namespace codegym::runtime {
     
     void Application::OnUpdate()
     {
+      Input::Get().ResetPressed();
       m_Window->ProcessInput();
+
+      if (Input::Get().GetKeyPressed(InputCode::Key::Escape)) {
+        m_Window->SetExit(true);
+      }
     }
 
     Application* CreateApplication() {
       return new Application();
     }
 
+    bool Application::OnWindowClose(WindowCloseEvent& e) {
+      return true;
+    }
+
+    bool Application::OnWindowResize(WindowResizeEvent& e) {
+      
+
+      return false;
+    }
     void Application::OnEvent(Event& e)
     {
         PROFILE_FUNCTION();
-       
+      EventDispatcher dispatcher(e);
+      dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
+      dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(Application::OnWindowResize));
+
+      if (e.Handled()) {
+        return ;
+      }
+      Input::Get().OnEvent(e);
     }
 
     void Application::Run()

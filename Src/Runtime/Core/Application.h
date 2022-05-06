@@ -5,6 +5,8 @@ namespace codegym::runtime {
     class Window;
     struct WindowDesc;
     class Event;
+    class WindowCloseEvent;
+    class WindowResizeEvent;
 
 
     class CG_API Application
@@ -44,7 +46,8 @@ namespace codegym::runtime {
         }
 
     private:
-        
+        bool OnWindowClose(WindowCloseEvent& e);
+        bool OnWindowResize(WindowResizeEvent& e);
         std::unique_ptr<Window> m_Window;
         
         static Application* s_Instance;
